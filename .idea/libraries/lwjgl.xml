@@ -1,0 +1,28 @@
+<component name="libraryTable">
+  <library name="lwjgl">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Desktop/LIBRARIES/lwjgl/jar/lwjgl.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <NATIVE>
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+      <root url="file://$USER_HOME$/Desktop/LIBRARIES/lwjgl/native" />
+    </NATIVE>
+    <SOURCES />
+  </library>
+</component>
