@@ -62,7 +62,7 @@ public class Mesh {
 
         vboVertexId = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboVertexId);
-        glBufferData(GL_ARRAY_BUFFER, intBuffer, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, floatBuffer, GL_DYNAMIC_DRAW);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
