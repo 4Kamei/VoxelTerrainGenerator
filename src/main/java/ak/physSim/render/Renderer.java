@@ -30,7 +30,6 @@ public class Renderer {
 
         program.setUniform("projectionMatrix", projectionMatrix);
 
-        Logger.log(Logger.LogLevel.DEBUG, renderables.size() + " size of render list");
         for (Renderable renderable : renderables) {
             program.setUniform("worldMatrix", renderable.getTransformation().getTranslationMatrix());
             renderable.render();

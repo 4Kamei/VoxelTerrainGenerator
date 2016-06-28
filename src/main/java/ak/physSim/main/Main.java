@@ -113,7 +113,6 @@ public class Main {
         GL.createCapabilities();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glEnable(GL_DEPTH_TEST);
-
         shaderProgram = new ShaderProgram();
         shaderProgram.createVertexShader(Utils.loadResource("src/main/GLSL/vertex.vs"));
         shaderProgram.createFragmentShader(Utils.loadResource("src/main/GLSL/fragment.fs"));
@@ -151,6 +150,7 @@ public class Main {
         }
 
         map.cleanup();
+        Logger.log(Logger.LogLevel.ALL, "Closing");
     }
 
     public static void main(String[] args) {

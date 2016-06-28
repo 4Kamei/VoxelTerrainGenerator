@@ -3,6 +3,7 @@ package ak.physSim.chunk;
 import ak.physSim.render.Mesh;
 import ak.physSim.render.Renderable;
 import ak.physSim.render.Transformation;
+import ak.physSim.util.Logger;
 import ak.physSim.util.Reference;
 import ak.physSim.voxel.Voxel;
 import org.joml.Vector3f;
@@ -52,6 +53,7 @@ public class Chunk extends Renderable {
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
 //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//        Logger.log(Logger.LogLevel.DEBUG, "Rendering at " + String.format("{%.1f,%.1f,%.1f}", position.x, position.y, position.z));
         glDrawElements(GL_TRIANGLES, mesh.getVertCount(), GL_UNSIGNED_INT, 0);
         glDisableVertexAttribArray(1);
         glDisableVertexAttribArray(0);
@@ -61,7 +63,7 @@ public class Chunk extends Renderable {
     @Override
     public void setup(GLCapabilities capabilities){
         GL.setCapabilities(capabilities);
-        transformation  = new Transformation(position, new Vector3f(0, 0, 0), 1);
+        transformation  = new Transformation(position, new Vector3f(0, 0, 0), 1f);
     }
 
     public void setMesh(Mesh mesh){

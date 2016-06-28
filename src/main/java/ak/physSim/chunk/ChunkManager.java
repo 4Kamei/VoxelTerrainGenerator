@@ -1,6 +1,7 @@
 package ak.physSim.chunk;
 
 import ak.physSim.chunk.Chunk;
+import ak.physSim.render.Mesh;
 import ak.physSim.render.Renderable;
 import ak.physSim.util.Logger;
 import ak.physSim.util.Point3d;
@@ -38,6 +39,42 @@ public class ChunkManager {
     }
 
     public void comupteAll() throws Exception {
+        float[] vertices = {
+                -0.5f,   0.5f,  0.5f,
+                -0.5f,  -0.5f,  0.5f,
+                0.5f,  -0.5f,  0.5f,
+                0.5f,   0.5f,  0.5f,
+                -0.5f,   0.5f, -0.5f,
+                -0.5f,  -0.5f, -0.5f,
+                0.5f,  -0.5f, -0.5f,
+                0.5f,   0.5f, -0.5f,
+        };
+        float[] colours = new float[]{
+                0.5f, 0.0f, 0.0f,
+                0.0f, 0.5f, 0.5f,
+                0.5f, 0.0f, 0.0f,
+                0.0f, 0.5f, 0.5f,
+                0.5f, 0.0f, 0.0f,
+                0.0f, 0.5f, 0.0f,
+                0.0f, 0.0f, 0.5f,
+                0.0f, 0.5f, 0.5f,
+        };
+        int[] indices = new int[]{
+                // Front face
+                0, 1, 3, 3, 1, 2,
+                // Top Face
+                0, 4, 3, 3, 4, 7,
+                // Right face
+                3, 2, 7, 7, 2, 6,
+                // Left face
+                0, 1, 4, 4, 1, 5,
+                // Bottom face
+                1, 5, 2, 2, 5, 6,
+                // Back face
+                4, 5, 7, 7, 5, 6
+        };
+
+        Mesh mesh = new Mesh(vertices, colours, indices);
         while (needsMeshUpdate.peek() != null){
             Chunk chunk = chunkMap.get(needsMeshUpdate.poll());
             ChunkMesher mesher = new ChunkMesher(chunk);

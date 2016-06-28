@@ -9,7 +9,9 @@ import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
 import static ak.physSim.util.Reference.CHUNK_SIZE;
 
@@ -32,7 +34,7 @@ public class ChunkMesher{
     private ArrayList<Float> verticesBuffer;
     private ArrayList<Float> colourBuffer;
     private ArrayList<Integer> indicesBuffer;
-    private int indexOffset;
+    private int indexOffset = 0;
     private Chunk chunk;
     private Mesh mesh;
 
@@ -64,8 +66,8 @@ public class ChunkMesher{
         Logger.log(Logger.LogLevel.DEBUG, "Length of vert array " + vert.length);
         float[] colour = new float[colourBuffer.size()];
         Iterator<Float> colIter = colourBuffer.iterator();
-        for (int i = 0; i < vert.length; i++) {
-            vert[i] = colIter.next();
+        for (int i = 0; i < colour.length; i++) {
+            colour[i] = colIter.next();
         }
         Logger.log(Logger.LogLevel.DEBUG, "Length of colour array " + colour.length);
         int[] indices = new int[indicesBuffer.size()];
@@ -73,6 +75,7 @@ public class ChunkMesher{
         for (int i = 0; i < indices.length; i++) {
             indices[i] = intIter.next();
         }
+
         Logger.log(Logger.LogLevel.DEBUG, "Length of indices array " + indices.length);
         mesh = new Mesh(vert, colour, indices);
     }
@@ -324,6 +327,7 @@ public class ChunkMesher{
               final boolean backFace) {
         Vector3f[] vector3fs = new Vector3f[]{topLeft, bottomLeft, bottomRight, topRight};
         float[] col = voxel.type.getColour();
+
         for (Vector3f vector3f : vector3fs) {
             verticesBuffer.add(vector3f.x);
             verticesBuffer.add(vector3f.y);
@@ -333,22 +337,20 @@ public class ChunkMesher{
             colourBuffer.add(col[2]);
         }
         if (backFace) {
-            indicesBuffer.add(2 + indexOffset);
             indicesBuffer.add(0 + indexOffset);
             indicesBuffer.add(1 + indexOffset);
-            indicesBuffer.add(1 + indexOffset);
             indicesBuffer.add(3 + indexOffset);
+            indicesBuffer.add(3 + indexOffset);
+            indicesBuffer.add(1 + indexOffset);
             indicesBuffer.add(2 + indexOffset);
         }else{
             indicesBuffer.add(2 + indexOffset);
+            indicesBuffer.add(1 + indexOffset);
+            indicesBuffer.add(3 + indexOffset);
             indicesBuffer.add(3 + indexOffset);
             indicesBuffer.add(1 + indexOffset);
-            indicesBuffer.add(1 + indexOffset);
             indicesBuffer.add(0 + indexOffset);
-            indicesBuffer.add(2 + indexOffset);
         }
         indexOffset += 4;
-
     }
-
 }

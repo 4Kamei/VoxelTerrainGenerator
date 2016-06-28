@@ -28,16 +28,19 @@ public class WorldManager {
         manager = new ChunkManager();
         for (int x = -5; x <= 5; x++) {
             for (int z = -5; z <= 5; z++) {
-                chunk = new Chunk(x, 1, z);
+                chunk = new Chunk(x, -1, z);
                 chunk.setup(this.capabilities);
                 for (int cX = 0; cX < 16; cX++) {
                     for (int cY = 0; cY < 16; cY++) {
                         for (int cZ = 0; cZ < 16; cZ++) {
-                            chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
+                            if (x *z % 2 == 0)
+                                chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
+                            else
+                                chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.GRASS));
                         }
                     }
                 }
-                //TODO WHEN FILLING CHUNK GO ONE BLOCK OVER ON ALL SIDES
+
                 manager.addChunk(new Point3d(x, 1, z), chunk);
             }
         }
