@@ -10,6 +10,8 @@ public class Voxel {
 
     public Voxel(VoxelType type) {
         this.type = type;
+        if (type == VoxelType.AIR)
+            isVisible = false;
     }
 
     public boolean getIsVisible() {

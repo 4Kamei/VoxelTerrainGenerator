@@ -8,8 +8,10 @@ import ak.physSim.util.Logger;
 import ak.physSim.util.Point3d;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
+import org.joml.SimplexNoise;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.stb.STBPerlin;
 
 import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
@@ -20,23 +22,21 @@ import java.util.HashMap;
  */
 public class WorldManager {
     private ChunkManager manager;
-    private Player player; //TODO PLAYER
+    private Player player;
     private GLCapabilities capabilities;
-    public WorldManager(GLCapabilities capabilities){
+    public WorldManager(Player player, GLCapabilities capabilities){
+        this.player = player;
         this.capabilities = capabilities;
         Chunk chunk;
         manager = new ChunkManager();
-        for (int x = -5; x <= 5; x++) {
-            for (int z = -5; z <= 5; z++) {
+        for (int x = -16; x <= 16; x++) {
+            for (int z = -16; z <= 16; z++) {
                 chunk = new Chunk(x, -1, z);
                 chunk.setup(this.capabilities);
                 for (int cX = 0; cX < 16; cX++) {
-                    for (int cY = 0; cY < 16; cY++) {
-                        for (int cZ = 0; cZ < 16; cZ++) {
-                            if (x *z % 2 == 0)
-                                chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
-                            else
-                                chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.GRASS));
+                    for (int cZ = 0; cZ < 16; cZ++) {
+                        for (int cY = 0; cY < SimplexNoise.noise(x * 16 + cX, z * 16 + cY); cY++) {
+                            chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
                         }
                     }
                 }
@@ -56,7 +56,7 @@ public class WorldManager {
     }
 
     public ArrayList<Renderable> getObjectsToRender() {
-        return manager.getVisibleChunks(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0));
+        return manager.getVisibleChunks(player.getPosition(), player.getLookVector());
     }
 
     public void cleanup() {

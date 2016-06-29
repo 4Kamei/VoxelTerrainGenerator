@@ -1,10 +1,13 @@
 package ak.physSim.main;
 
+import ak.physSim.Player;
 import ak.physSim.render.Renderer;
 import ak.physSim.util.Logger;
 import ak.physSim.util.ShaderProgram;
 import ak.physSim.util.Utils;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -20,11 +23,11 @@ public class Main {
     // The window handle
     private long window;
 
-    private int HEIGHT = 600,
-                WIDTH  = 800;
+    private int HEIGHT = 1080,
+                WIDTH  = 1920;
 
     //Projection Matrix stuff;
-    private static final float fov  = (float) (Math.PI/6); //60 degrees
+    private static final float fov  = (float) (Math.PI/4); //60 degrees
     private static final float zNear = 0.01f;
     private static final float zFar= 1000.f;
 
@@ -41,6 +44,7 @@ public class Main {
 
     //Game renderer, TODO: Run in different thread?
     private Renderer renderer;
+    private Player player;
 
     public void run() {
         Logger.log(Logger.LogLevel.ALL,"Running LWJGL Version" + Version.getVersion());
@@ -77,7 +81,6 @@ public class Main {
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // the window will be resizable
-
         // Create the window
         window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World!", NULL, NULL);
         if (window == NULL)
@@ -87,7 +90,9 @@ public class Main {
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
             if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
                 glfwSetWindowShouldClose(window, true); // We will detect this in our rendering loop
+            player.setKeys(key, action);
         });
+        
 
         // Get the resolution of the primary monitor
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -126,24 +131,21 @@ public class Main {
         renderer = new Renderer(shaderProgram);
     }
     private void initObjects(){
-        map = new WorldManager(/*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
+        player = new Player(new Vector3f(0, 17, 0), new Vector3f(0, 0, 0));
+        map = new WorldManager(player, /*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
     }
-
     private void loop() throws Exception {
         glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
             @Override
             public void invoke(long l, double x, double y) {
-                projectionMatrix.identity()
-                        .perspective(fov, aspectRatio, zNear, zFar)
-                        .rotateX((float) -((y / (HEIGHT) - 0.5f) * Math.PI * 2))
-                        .rotateY((float) -((x / (WIDTH)  - 0.5f) * Math.PI * 2));
+                player.setLookVector(Math.PI + ((y / (HEIGHT) - 0.5f) * Math.PI * 2), -((x / (WIDTH) - 0.5f) * Math.PI * 2), 0);
             }
         });
 
         while ( !glfwWindowShouldClose(window) ) {
+            update();
             renderer.addRenderables(map.getObjectsToRender());
             renderer.render(projectionMatrix);
-
             glfwSwapBuffers(window); // swap the color buffers
 
             glfwPollEvents();
@@ -151,6 +153,15 @@ public class Main {
 
         map.cleanup();
         Logger.log(Logger.LogLevel.ALL, "Closing");
+    }
+
+    private void update() {
+        projectionMatrix.identity()
+                .perspective(fov, aspectRatio, zNear, zFar)
+                .rotateX(player.getLookVector().x)
+                .rotateY(player.getLookVector().y);
+                projectionMatrix.translate(player.getPosition());
+        player.update(16);
     }
 
     public static void main(String[] args) {

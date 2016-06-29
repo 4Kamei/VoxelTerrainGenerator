@@ -98,15 +98,20 @@ public class ChunkMesher{
     }
 
 
-    VoxelFace getVoxelFace(final int x, final int y, final int z, final int side) {
 
+    VoxelFace getVoxelFace(final int x, final int y, final int z, final int side) {
         Voxel vox = chunk.getVoxel(x, y, z);
+
         VoxelFace voxelFace = new VoxelFace();
         //TODO: PRIORITY KINDA IMPORTANT, CULLING?
-        voxelFace.transparent = vox.getIsVisible();
-        voxelFace.type = vox.getType();
+        if (vox == null) {
+            voxelFace.transparent = true;
+            voxelFace.type = VoxelType.AIR;
+        } else {
+            voxelFace.transparent = vox.getIsVisible();
+            voxelFace.type = vox.getType();
+        }
         voxelFace.side = side;
-
         return voxelFace;
     }
 

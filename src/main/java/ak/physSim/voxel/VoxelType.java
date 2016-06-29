@@ -8,7 +8,8 @@ import java.util.HashMap;
  */
 public enum  VoxelType {
     STONE (0.6f, 0.6f, 0.6f),
-    GRASS (0, 0.4f, 0);
+    GRASS (0, 0.4f, 0),
+    AIR(0, 0, 0);
 
     private final float[] colour = new float[3];
 
