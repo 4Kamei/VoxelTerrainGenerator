@@ -1,18 +1,14 @@
 package ak.physSim.chunk;
 
-import ak.physSim.chunk.Chunk;
-import ak.physSim.render.Mesh;
-import ak.physSim.render.Renderable;
+import ak.physSim.render.meshes.Mesh;
+import ak.physSim.render.RenderableBase;
 import ak.physSim.util.Logger;
 import ak.physSim.util.Point3d;
-import ak.physSim.voxel.Voxel;
-import com.sun.org.apache.xml.internal.dtm.ref.dom2dtm.DOM2DTM;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import java.lang.invoke.LambdaConversionException;
-import java.util.*;
-import java.util.zip.CheckedInputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * Created by Aleksander on 26/06/2016.
@@ -82,6 +78,7 @@ public class ChunkManager {
             chunk.setMesh(mesher.getMesh());
         }
     }
+
     public void computeUpdates() throws Exception {
         for (int i = 0; i < 5 && needsMeshUpdate.peek() != null; i++) {
             Chunk chunk = chunkMap.get(needsMeshUpdate.poll());
@@ -91,7 +88,7 @@ public class ChunkManager {
         }
     }
 
-    public ArrayList<Renderable> getVisibleChunks(Vector3f playerPos, Vector3f lookVector){
+    public ArrayList<RenderableBase> getVisibleChunks(Vector3f playerPos, Vector3f lookVector){
       //TODO COMPUTE VISIBLE CHUNKS FRUSTUM CULLING
         return new ArrayList<>(chunkMap.values());
     }

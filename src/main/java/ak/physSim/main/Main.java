@@ -1,13 +1,13 @@
 package ak.physSim.main;
 
-import ak.physSim.Player;
+import ak.physSim.entity.Player;
 import ak.physSim.render.Renderer;
 import ak.physSim.util.Logger;
 import ak.physSim.util.ShaderProgram;
 import ak.physSim.util.Utils;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.Vector3i;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -23,8 +23,8 @@ public class Main {
     // The window handle
     private long window;
 
-    private int HEIGHT = 1080,
-                WIDTH  = 1920;
+    private int WIDTH  = 800,
+                HEIGHT = 600;
 
     //Projection Matrix stuff;
     private static final float fov  = (float) (Math.PI/4); //60 degrees
@@ -145,7 +145,7 @@ public class Main {
         while ( !glfwWindowShouldClose(window) ) {
             update();
             renderer.addRenderables(map.getObjectsToRender());
-            renderer.render(projectionMatrix);
+            renderer.render(projectionMatrix, new Vector3i(-1, -1, -1));
             glfwSwapBuffers(window); // swap the color buffers
 
             glfwPollEvents();

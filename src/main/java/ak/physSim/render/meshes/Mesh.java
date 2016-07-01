@@ -1,4 +1,4 @@
-package ak.physSim.render;
+package ak.physSim.render.meshes;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL30;

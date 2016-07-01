@@ -1,21 +1,17 @@
 package ak.physSim.main;
 
-import ak.physSim.Player;
+import ak.physSim.entity.Player;
 import ak.physSim.chunk.Chunk;
 import ak.physSim.chunk.ChunkManager;
-import ak.physSim.render.Renderable;
+import ak.physSim.render.RenderableBase;
 import ak.physSim.util.Logger;
 import ak.physSim.util.Point3d;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
 import org.joml.SimplexNoise;
-import org.joml.Vector3f;
 import org.lwjgl.opengl.GLCapabilities;
-import org.lwjgl.stb.STBPerlin;
 
-import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by Aleksander on 23/06/2016.
@@ -29,13 +25,13 @@ public class WorldManager {
         this.capabilities = capabilities;
         Chunk chunk;
         manager = new ChunkManager();
-        for (int x = -16; x <= 16; x++) {
-            for (int z = -16; z <= 16; z++) {
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
                 chunk = new Chunk(x, -1, z);
                 chunk.setup(this.capabilities);
                 for (int cX = 0; cX < 16; cX++) {
                     for (int cZ = 0; cZ < 16; cZ++) {
-                        for (int cY = 0; cY < SimplexNoise.noise(x * 16 + cX, z * 16 + cY); cY++) {
+                        for (int cY = 0; cY < 16; cY++) {
                             chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
                         }
                     }
@@ -55,7 +51,7 @@ public class WorldManager {
         }
     }
 
-    public ArrayList<Renderable> getObjectsToRender() {
+    public ArrayList<RenderableBase> getObjectsToRender() {
         return manager.getVisibleChunks(player.getPosition(), player.getLookVector());
     }
 

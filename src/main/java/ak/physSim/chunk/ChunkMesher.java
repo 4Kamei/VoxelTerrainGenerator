@@ -1,17 +1,16 @@
 package ak.physSim.chunk;
 
-import ak.physSim.render.Mesh;
+import ak.physSim.render.meshes.DirectionalMesh;
+import ak.physSim.render.meshes.Mesh;
+import ak.physSim.render.meshes.Side;
 import ak.physSim.util.Logger;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
 import org.joml.Vector3f;
-import org.lwjgl.BufferUtils;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.stream.Collectors;
 
 import static ak.physSim.util.Reference.CHUNK_SIZE;
 
@@ -31,18 +30,41 @@ public class ChunkMesher{
     private static final int TOP = 4;
     private static final int BOTTOM = 5;
 
-    private ArrayList<Float> verticesBuffer;
-    private ArrayList<Float> colourBuffer;
-    private ArrayList<Integer> indicesBuffer;
+    private HashMap<Side, ArrayList<Float>> verticesBuffer;
+    private HashMap<Side, ArrayList<Float>> colourBuffer;
+    private HashMap<Side, ArrayList<Integer>> indicesBuffer;
     private int indexOffset = 0;
     private Chunk chunk;
-    private Mesh mesh;
+    private DirectionalMesh mesh;
 
     public ChunkMesher(Chunk chunk) {
         this.chunk = chunk;
-        colourBuffer = new ArrayList<>();
-        verticesBuffer = new ArrayList<>();
-        indicesBuffer = new ArrayList<>();
+        colourBuffer = new HashMap<>();
+
+        colourBuffer.put(Side.X_MINUS, new ArrayList<>());
+        colourBuffer.put(Side.X_PLUS, new ArrayList<>());
+        colourBuffer.put(Side.Z_MINUS, new ArrayList<>());
+        colourBuffer.put(Side.Z_PLUS, new ArrayList<>());
+        colourBuffer.put(Side.Y_MINUS, new ArrayList<>());
+        colourBuffer.put(Side.Y_PLUS, new ArrayList<>());
+
+        verticesBuffer = new HashMap<>();
+
+        verticesBuffer.put(Side.X_MINUS, new ArrayList<>());
+        verticesBuffer.put(Side.X_PLUS, new ArrayList<>());
+        verticesBuffer.put(Side.Z_MINUS, new ArrayList<>());
+        verticesBuffer.put(Side.Z_PLUS, new ArrayList<>());
+        verticesBuffer.put(Side.Y_MINUS, new ArrayList<>());
+        verticesBuffer.put(Side.Y_PLUS, new ArrayList<>());
+
+        indicesBuffer = new HashMap<>();
+
+        indicesBuffer.put(Side.X_MINUS, new ArrayList<>());
+        indicesBuffer.put(Side.X_PLUS, new ArrayList<>());
+        indicesBuffer.put(Side.Z_MINUS, new ArrayList<>());
+        indicesBuffer.put(Side.Z_PLUS, new ArrayList<>());
+        indicesBuffer.put(Side.Y_MINUS, new ArrayList<>());
+        indicesBuffer.put(Side.Y_PLUS, new ArrayList<>());
     }
 
     public void run(){
@@ -58,29 +80,31 @@ public class ChunkMesher{
     }
 
     private void finishMesh(){
-        float[] vert = new float[verticesBuffer.size()];
-        Iterator<Float> Vertiter = verticesBuffer.iterator();
-        for (int i = 0; i < vert.length; i++) {
-            vert[i] = Vertiter.next();
+        mesh = new DirectionalMesh();
+        for (Side side : verticesBuffer.keySet()) {
+            float[] vert = new float[verticesBuffer.get(side).size()];
+            Iterator<Float> Vertiter = verticesBuffer.get(side).iterator();
+            for (int i = 0; i < vert.length; i++) {
+                vert[i] = Vertiter.next();
+            }
+            Logger.log(Logger.LogLevel.DEBUG, "Length of vert array " + vert.length);
+            float[] colour = new float[colourBuffer.get(side).size()];
+            Iterator<Float> colIter = colourBuffer.get(side).iterator();
+            for (int i = 0; i < colour.length; i++) {
+                colour[i] = colIter.next();
+            }
+            Logger.log(Logger.LogLevel.DEBUG, "Length of colour array " + colour.length);
+            int[] indices = new int[indicesBuffer.get(side).size()];
+            Iterator<Integer> intIter = indicesBuffer.get(side).iterator();
+            for (int i = 0; i < indices.length; i++) {
+                indices[i] = intIter.next();
+            }
+            System.out.println(side);
+            mesh.addMesh(side, new  Mesh(vert, colour, indices));
         }
-        Logger.log(Logger.LogLevel.DEBUG, "Length of vert array " + vert.length);
-        float[] colour = new float[colourBuffer.size()];
-        Iterator<Float> colIter = colourBuffer.iterator();
-        for (int i = 0; i < colour.length; i++) {
-            colour[i] = colIter.next();
-        }
-        Logger.log(Logger.LogLevel.DEBUG, "Length of colour array " + colour.length);
-        int[] indices = new int[indicesBuffer.size()];
-        Iterator<Integer> intIter = indicesBuffer.iterator();
-        for (int i = 0; i < indices.length; i++) {
-            indices[i] = intIter.next();
-        }
-
-        Logger.log(Logger.LogLevel.DEBUG, "Length of indices array " + indices.length);
-        mesh = new Mesh(vert, colour, indices);
     }
 
-    public Mesh getMesh() throws Exception {
+    public DirectionalMesh getMesh() throws Exception {
         if (mesh == null)
             throw new Exception("Mesh not ready exception");
         return mesh;
@@ -91,7 +115,6 @@ public class ChunkMesher{
         public boolean transparent;
         public VoxelType type;
         public int side;
-
         public boolean equals(final VoxelFace face) {
             return face.transparent == this.transparent && face.type == this.type;
         }
@@ -101,7 +124,6 @@ public class ChunkMesher{
 
     VoxelFace getVoxelFace(final int x, final int y, final int z, final int side) {
         Voxel vox = chunk.getVoxel(x, y, z);
-
         VoxelFace voxelFace = new VoxelFace();
         //TODO: PRIORITY KINDA IMPORTANT, CULLING?
         if (vox == null) {
@@ -120,7 +142,8 @@ public class ChunkMesher{
          * These are just working variables for the algorithm - almost all taken
          * directly from Mikola Lysenko's javascript implementation.
          */
-        int i, j, k, l, w, h, u, v, n, side = 0;
+        int i, j, k, l, w, h, u, v, n;
+        int side = 0;
 
         final int[] x = new int[]{0, 0, 0};
         final int[] q = new int[]{0, 0, 0};
@@ -172,11 +195,11 @@ public class ChunkMesher{
                  * Here we're keeping track of the side that we're meshing.
                  */
                 if (d == 0) {
-                    side = backFace ? WEST : EAST;
+                    side = backFace ? NORTH : SOUTH;
                 } else if (d == 1) {
-                    side = backFace ? BOTTOM : TOP;
+                    side = backFace ? EAST : WEST;
                 } else if (d == 2) {
-                    side = backFace ? SOUTH : NORTH;
+                    side = backFace ? TOP : BOTTOM;
                 }
 
                 /*
@@ -332,30 +355,31 @@ public class ChunkMesher{
               final boolean backFace) {
         Vector3f[] vector3fs = new Vector3f[]{topLeft, bottomLeft, bottomRight, topRight};
         float[] col = voxel.type.getColour();
-
+        Side side = Side.X_PLUS;
         for (Vector3f vector3f : vector3fs) {
-            verticesBuffer.add(vector3f.x);
-            verticesBuffer.add(vector3f.y);
-            verticesBuffer.add(vector3f.z);
-            colourBuffer.add(col[0]);
-            colourBuffer.add(col[1]);
-            colourBuffer.add(col[2]);
+            verticesBuffer.get(side).add(vector3f.x);
+            verticesBuffer.get(side).add(vector3f.y);
+            verticesBuffer.get(side).add(vector3f.z);
+            colourBuffer.get(side).add(col[0]);
+            colourBuffer.get(side).add(col[1]);
+            colourBuffer.get(side).add(col[2]);
         }
         if (backFace) {
-            indicesBuffer.add(0 + indexOffset);
-            indicesBuffer.add(1 + indexOffset);
-            indicesBuffer.add(3 + indexOffset);
-            indicesBuffer.add(3 + indexOffset);
-            indicesBuffer.add(1 + indexOffset);
-            indicesBuffer.add(2 + indexOffset);
+            indicesBuffer.get(side).add(0 + indexOffset);
+            indicesBuffer.get(side).add(1 + indexOffset);
+            indicesBuffer.get(side).add(3 + indexOffset);
+            indicesBuffer.get(side).add(3 + indexOffset);
+            indicesBuffer.get(side).add(1 + indexOffset);
+            indicesBuffer.get(side).add(2 + indexOffset);
         }else{
-            indicesBuffer.add(2 + indexOffset);
-            indicesBuffer.add(1 + indexOffset);
-            indicesBuffer.add(3 + indexOffset);
-            indicesBuffer.add(3 + indexOffset);
-            indicesBuffer.add(1 + indexOffset);
-            indicesBuffer.add(0 + indexOffset);
+            indicesBuffer.get(side).add(2 + indexOffset);
+            indicesBuffer.get(side).add(1 + indexOffset);
+            indicesBuffer.get(side).add(3 + indexOffset);
+            indicesBuffer.get(side).add(3 + indexOffset);
+            indicesBuffer.get(side).add(1 + indexOffset);
+            indicesBuffer.get(side).add(0 + indexOffset);
         }
         indexOffset += 4;
+        System.out.println(voxel.side);
     }
 }
