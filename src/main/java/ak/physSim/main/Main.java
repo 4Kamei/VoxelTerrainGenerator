@@ -131,21 +131,21 @@ public class Main {
         renderer = new Renderer(shaderProgram);
     }
     private void initObjects(){
-        player = new Player(new Vector3f(0, 17, 0), new Vector3f(0, 0, 0));
+        player = new Player(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0));
         map = new WorldManager(player, /*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
     }
     private void loop() throws Exception {
         glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
             @Override
             public void invoke(long l, double x, double y) {
-                player.setLookVector(Math.PI + ((y / (HEIGHT) - 0.5f) * Math.PI * 2), -((x / (WIDTH) - 0.5f) * Math.PI * 2), 0);
+                player.setLook((float) ((y / (HEIGHT) - 0.5f) * Math.PI * 2), (float) ((x / (WIDTH) - 0.5f) * Math.PI * 2));
             }
         });
 
         while ( !glfwWindowShouldClose(window) ) {
             update();
             renderer.addRenderables(map.getObjectsToRender());
-            renderer.render(projectionMatrix, new Vector3i(-1, -1, -1));
+            renderer.render(projectionMatrix, player.getAxisVector());
             glfwSwapBuffers(window); // swap the color buffers
 
             glfwPollEvents();
@@ -160,7 +160,7 @@ public class Main {
                 .perspective(fov, aspectRatio, zNear, zFar)
                 .rotateX(player.getLookVector().x)
                 .rotateY(player.getLookVector().y);
-                projectionMatrix.translate(player.getPosition());
+                projectionMatrix.translate(player.getTransform());
         player.update(16);
     }
 

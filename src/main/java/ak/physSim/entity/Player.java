@@ -1,7 +1,7 @@
 package ak.physSim.entity;
 
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -12,6 +12,7 @@ public class Player {
     private Vector3f position;
     private final float speed = 0.1f;
     private boolean up, down, left, right;
+    private float azimuth, pitch;
 
     public Player(Vector3f playerPosition, Vector3f playerLookVector) {
         this.lookVector = playerLookVector;
@@ -31,11 +32,12 @@ public class Player {
     }
 
     public void update(int delta){
+
         if (up){
             position.add(
-                    (float) Math.sin(lookVector.y) * delta * speed,
+                    (float) -Math.sin(lookVector.y) * delta * speed,
                     0,
-                    (float) -Math.cos(lookVector.y) * delta * speed);
+                    (float) Math.cos(lookVector.y) * delta * speed);
         }
     }
 
@@ -43,11 +45,26 @@ public class Player {
         return lookVector;
     }
 
-    public void setLookVector(double rotX, double rotY, double rotZ){
-        lookVector.set((float) rotX, (float) rotY,(float)  rotZ);
+    public void setLook(float azimuth, float pitch){
+        this.azimuth = azimuth;
+        this.pitch = pitch;
+        this.lookVector = caluclateLookVector();
     }
 
-    public Vector3f getPosition() {
-        return position;
+    public Vector3f caluclateLookVector() {
+        float sinPitch = (float) Math.sin(pitch);
+        return new Vector3f((float) (sinPitch*Math.cos(azimuth)), (float) Math.cos(pitch), (float) -(sinPitch*Math.sin(pitch)));
+    }
+
+    public Vector3i getAxisVector(){
+        return new Vector3i(calNorm(lookVector.x), calNorm(lookVector.y), calNorm(lookVector.z));
+    }
+
+    private int calNorm(double number){
+        return (int) (number/Math.abs(number));
+    }
+
+    public Vector3f getTransform() {
+        return position.negate();
     }
 }

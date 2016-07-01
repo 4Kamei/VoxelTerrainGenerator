@@ -8,7 +8,6 @@ import ak.physSim.util.Logger;
 import ak.physSim.util.Point3d;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
-import org.joml.SimplexNoise;
 import org.lwjgl.opengl.GLCapabilities;
 
 import java.util.ArrayList;
@@ -25,9 +24,25 @@ public class WorldManager {
         this.capabilities = capabilities;
         Chunk chunk;
         manager = new ChunkManager();
+        int y = 1;
         for (int x = -1; x <= 1; x++) {
             for (int z = -1; z <= 1; z++) {
-                chunk = new Chunk(x, -1, z);
+                chunk = new Chunk(x, y, z);
+                chunk.setup(this.capabilities);
+                for (int cX = 0; cX < 16; cX++) {
+                    for (int cZ = 0; cZ < 16; cZ++) {
+                        for (int cY = 0; cY < 16; cY++) {
+                            chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.GRASS));
+                        }
+                    }
+                }
+                manager.addChunk(new Point3d(x, y, z), chunk);
+            }
+        }
+        y = 0;
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                chunk = new Chunk(x, y, z);
                 chunk.setup(this.capabilities);
                 for (int cX = 0; cX < 16; cX++) {
                     for (int cZ = 0; cZ < 16; cZ++) {
@@ -36,10 +51,26 @@ public class WorldManager {
                         }
                     }
                 }
-
-                manager.addChunk(new Point3d(x, 1, z), chunk);
+                manager.addChunk(new Point3d(x, y, z), chunk);
             }
         }
+        y = -1;
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                chunk = new Chunk(x, y, z);
+                chunk.setup(this.capabilities);
+                for (int cX = 0; cX < 16; cX++) {
+                    for (int cZ = 0; cZ < 16; cZ++) {
+                        for (int cY = 0; cY < 16; cY++) {
+                            chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.DARK_STONE));
+                        }
+                    }
+                }
+                manager.addChunk(new Point3d(x, y, z), chunk);
+            }
+        }
+
+
 
         try {
             Logger.log(Logger.LogLevel.ALL, "Gen of terrain meshes started");
@@ -52,7 +83,7 @@ public class WorldManager {
     }
 
     public ArrayList<RenderableBase> getObjectsToRender() {
-        return manager.getVisibleChunks(player.getPosition(), player.getLookVector());
+        return manager.getVisibleChunks(player.getTransform(), player.getLookVector());
     }
 
     public void cleanup() {
