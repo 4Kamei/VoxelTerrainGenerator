@@ -6,6 +6,7 @@ import ak.physSim.render.Transformation;
 import ak.physSim.render.meshes.FaceMesh;
 import ak.physSim.render.meshes.Mesh;
 import ak.physSim.render.meshes.Side;
+import ak.physSim.util.Logger;
 import ak.physSim.util.Reference;
 import ak.physSim.voxel.Voxel;
 import org.joml.Vector3f;
@@ -55,7 +56,7 @@ public class Chunk extends RenderableBase {
             GL30.glBindVertexArray(faceMesh.getVaoID());
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 //        Logger.log(Logger.LogLevel.DEBUG, "Rendering at " + String.format("{%.1f,%.1f,%.1f}", position.x, position.y, position.z));
             glDrawElements(GL_TRIANGLES, faceMesh.getVertexCount(), GL_UNSIGNED_INT, 0);
             glDisableVertexAttribArray(1);

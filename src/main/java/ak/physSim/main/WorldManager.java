@@ -25,8 +25,9 @@ public class WorldManager {
         Chunk chunk;
         manager = new ChunkManager();
         int y = 1;
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
+        int limit = 5;
+        for (int x = -limit; x <= limit; x++) {
+            for (int z = -limit; z <= limit; z++) {
                 chunk = new Chunk(x, y, z);
                 chunk.setup(this.capabilities);
                 for (int cX = 0; cX < 16; cX++) {
@@ -40,23 +41,25 @@ public class WorldManager {
             }
         }
         y = 0;
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
+        for (int x = -limit; x <= limit; x++) {
+            for (int z = -limit; z <= limit; z++) {
                 chunk = new Chunk(x, y, z);
                 chunk.setup(this.capabilities);
-                for (int cX = 0; cX < 16; cX++) {
-                    for (int cZ = 0; cZ < 16; cZ++) {
-                        for (int cY = 0; cY < 16; cY++) {
-                            chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
+                if (x != 0 && z != 0){
+                    for (int cX = 0; cX < 16; cX++) {
+                        for (int cZ = 0; cZ < 16; cZ++) {
+                            for (int cY = 0; cY < 16; cY++) {
+                                chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
+                            }
                         }
                     }
+                    manager.addChunk(new Point3d(x, y, z), chunk);
                 }
-                manager.addChunk(new Point3d(x, y, z), chunk);
             }
         }
         y = -1;
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
+        for (int x = -limit; x <= limit; x++) {
+            for (int z = -limit; z <= limit; z++) {
                 chunk = new Chunk(x, y, z);
                 chunk.setup(this.capabilities);
                 for (int cX = 0; cX < 16; cX++) {

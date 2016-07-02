@@ -131,14 +131,14 @@ public class Main {
         renderer = new Renderer(shaderProgram);
     }
     private void initObjects(){
-        player = new Player(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0));
+        player = new Player(new Vector3f(10, 10, 10), new Vector3f(0, 0, 0));
         map = new WorldManager(player, /*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
     }
     private void loop() throws Exception {
         glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
             @Override
             public void invoke(long l, double x, double y) {
-                player.setLook((float) ((y / (HEIGHT) - 0.5f) * Math.PI * 2), (float) ((x / (WIDTH) - 0.5f) * Math.PI * 2));
+                player.setLook((float) ((x / (WIDTH) - 0.5f) * Math.PI * 2), (float) ((y / HEIGHT - 0.5f) * Math.PI * 2));
             }
         });
 
@@ -158,9 +158,9 @@ public class Main {
     private void update() {
         projectionMatrix.identity()
                 .perspective(fov, aspectRatio, zNear, zFar)
-                .rotateX(player.getLookVector().x)
-                .rotateY(player.getLookVector().y);
-                projectionMatrix.translate(player.getTransform());
+                .rotateX(player.getPitch())
+                .rotateY(player.getAzimuth());
+        projectionMatrix.translate(player.getTransform());
         player.update(16);
     }
 
