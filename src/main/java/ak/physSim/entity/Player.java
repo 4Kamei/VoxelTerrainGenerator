@@ -12,7 +12,7 @@ import org.lwjgl.glfw.GLFW;
 public class Player {
     private Vector3f lookVector;
     private Vector3f position;
-    private final float speed = 0.01f;
+    private final float speed = 0.1f;
     private boolean up, down, left, right;
     private float azimuth, pitch;
 
@@ -83,7 +83,7 @@ public class Player {
     }
 
     public Vector3f getTransform() {
-        return position;
+        return new Vector3f(position).mul(-1);
     }
 
     public float getAzimuth() {
