@@ -15,6 +15,10 @@ public class Player {
     private final float speed = 0.1f;
     private boolean up, down, left, right;
     private float azimuth, pitch;
+    private float dmouseX, lmouseX;
+    private float dmouseY, lmouseY;
+    private boolean active;
+    private boolean activeUpdated;
 
     public Player(Vector3f playerPosition, Vector3f playerLookVector) {
         this.lookVector = playerLookVector;
@@ -31,6 +35,10 @@ public class Player {
             left = (action != 0);
         if (key == GLFW.GLFW_KEY_RIGHT|| key == GLFW.GLFW_KEY_D)
             right = (action != 0);
+        if (key == GLFW.GLFW_KEY_ENTER){
+            active = (action != 0 ? !active : active);
+            activeUpdated = true;
+        }
     }
 
     public void update(int delta) {
@@ -54,20 +62,33 @@ public class Player {
         return lookVector;
     }
 
-        public void setLook(float azimuth, float pitch){
-            this.azimuth = (float) ((azimuth + Math.PI * 2) % (Math.PI * 2));
-            this.pitch = (float) (((pitch) + Math.PI/2 +  Math.PI*2) % (Math.PI * 2));
-            caluclateLookVector();
+    public void updateMouse(float mouseX, float mouseY){
+        dmouseX = mouseX - lmouseX;
+        lmouseX = mouseX;
+        Logger.log(Logger.LogLevel.DEBUG, dmouseX + "");
+        dmouseY = mouseY - lmouseY;
+        lmouseY = mouseY;
+        Logger.log(Logger.LogLevel.DEBUG, dmouseY + "");
+        if(active){
+            float dAz = (float) (dmouseX * Math.PI * 2);
+            float dPi = (float) (dmouseY * Math.PI * 2);
+            addLook(dAz, dPi);
         }
+    }
+
+    private void addLook(float azimuth, float pitch){
+        this.azimuth += azimuth;
+        this.pitch += pitch;
+        caluclateLookVector();
+    }
+    private void setLook(double azimuth, double pitch){
+        this.azimuth = (float) ((azimuth + Math.PI * 2) % (Math.PI * 2));
+        this.pitch = (float) (((pitch) + Math.PI/2 +  Math.PI*2) % (Math.PI * 2));
+        caluclateLookVector();
+    }
 
     private void caluclateLookVector() {
         float sinPitch = (float) Math.sin(-pitch);
-        /*
-        Matrix4f matrix4f = new Matrix4f().identity();
-        matrix4f.rotateX(pitch);
-        Logger.log(Logger.LogLevel.DEBUG, matrix4f.toString());
-        Logger.log(Logger.LogLevel.DEBUG, matrix4f.m22 + "");
-        Vector3f lookVector = new Vector3f(matrix4f.m20, matrix4f.m21, matrix4f.m22);*/
         lookVector = new Vector3f((float) (-sinPitch*Math.sin(azimuth)), (float) Math.cos(pitch), (float) (sinPitch*Math.cos(azimuth)));
         Logger.log(Logger.LogLevel.DEBUG, String.format("EYE: %.3f, %.3f, %.3f", lookVector.x, lookVector.y, lookVector.z));
         Logger.log(Logger.LogLevel.DEBUG, String.format("AXS: %d, %d, %d", getAxisVector().x, getAxisVector().y, getAxisVector().z));
@@ -92,5 +113,18 @@ public class Player {
 
     public float getPitch() {
         return (float) (pitch - Math.PI/2);
+    }
+
+    public boolean isActiveUpdated() {
+        if (activeUpdated) {
+            activeUpdated = false;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean lookActive() {
+        activeUpdated = true;
+        return active;
     }
 }

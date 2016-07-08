@@ -1,14 +1,21 @@
 package ak.physSim.chunk;
 
-import ak.physSim.render.meshes.Mesh;
-import ak.physSim.render.RenderableBase;
+import ak.physSim.chunk.Chunk;
+import ak.physSim.render.Mesh;
+import ak.physSim.render.Renderable;
 import ak.physSim.util.Logger;
 import ak.physSim.util.Point3d;
+import ak.physSim.voxel.Voxel;
+import com.sun.org.apache.xml.internal.dtm.ref.dom2dtm.DOM2DTM;
+import javafx.geometry.Point3D;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GLCapabilities;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.awt.*;
+import java.lang.invoke.LambdaConversionException;
+import java.util.*;
+import java.util.zip.CheckedInputStream;
 
 /**
  * Created by Aleksander on 26/06/2016.
@@ -16,8 +23,10 @@ import java.util.LinkedList;
 public class ChunkManager {
     private HashMap<Point3d, Chunk> chunkMap;
     private LinkedList<Point3d> needsMeshUpdate;
+    private GLCapabilities glCapabilities;
 
-    public ChunkManager() {
+    public ChunkManager(GLCapabilities glCapabilities) {
+        this.glCapabilities = glCapabilities;
         this.chunkMap = new HashMap<>();
         needsMeshUpdate = new LinkedList<>();
     }
@@ -31,71 +40,68 @@ public class ChunkManager {
     public void setNeedsMeshUpdate(Point3d position){
         if (!chunkMap.containsKey(position))
             Logger.log(Logger.LogLevel.ERROR, "CHUNK WITH UNKNOWN POSITION ADDED {" + position.toString());
-        needsMeshUpdate.add(position);
+        if (!needsMeshUpdate.contains(position))
+            needsMeshUpdate.add(position);
     }
 
-    public void comupteAll() throws Exception {
-        float[] vertices = {
-                -0.5f,   0.5f,  0.5f,
-                -0.5f,  -0.5f,  0.5f,
-                0.5f,  -0.5f,  0.5f,
-                0.5f,   0.5f,  0.5f,
-                -0.5f,   0.5f, -0.5f,
-                -0.5f,  -0.5f, -0.5f,
-                0.5f,  -0.5f, -0.5f,
-                0.5f,   0.5f, -0.5f,
-        };
-        float[] colours = new float[]{
-                0.5f, 0.0f, 0.0f,
-                0.0f, 0.5f, 0.5f,
-                0.5f, 0.0f, 0.0f,
-                0.0f, 0.5f, 0.5f,
-                0.5f, 0.0f, 0.0f,
-                0.0f, 0.5f, 0.0f,
-                0.0f, 0.0f, 0.5f,
-                0.0f, 0.5f, 0.5f,
-        };
-        int[] indices = new int[]{
-                // Front face
-                0, 1, 3, 3, 1, 2,
-                // Top Face
-                0, 4, 3, 3, 4, 7,
-                // Right face
-                3, 2, 7, 7, 2, 6,
-                // Left face
-                0, 1, 4, 4, 1, 5,
-                // Bottom face
-                1, 5, 2, 2, 5, 6,
-                // Back face
-                4, 5, 7, 7, 5, 6
-        };
-
-        Mesh mesh = new Mesh(vertices, colours, indices);
+    public void comupteAll() {
+        int i = 0;
         while (needsMeshUpdate.peek() != null){
+            i++;
             Chunk chunk = chunkMap.get(needsMeshUpdate.poll());
             ChunkMesher mesher = new ChunkMesher(chunk);
             mesher.run();
-            chunk.setMesh(mesher.getMesh());
+            try {
+                chunk.setMesh(mesher.getMesh());
+            } catch (Exception e) {
+                Logger.log(Logger.LogLevel.ERROR, e.getMessage());
+            }
+            Logger.log(Logger.LogLevel.DEBUG, "Chunk Loop is " + i);
+            Logger.log(Logger.LogLevel.DEBUG, "Melh Update " + needsMeshUpdate.size());
         }
-    }
 
-    public void computeUpdates() throws Exception {
+    }
+    public void computeUpdates() {
         for (int i = 0; i < 5 && needsMeshUpdate.peek() != null; i++) {
             Chunk chunk = chunkMap.get(needsMeshUpdate.poll());
             ChunkMesher mesher = new ChunkMesher(chunk);
             mesher.run();
-            chunk.setMesh(mesher.getMesh());
+            try {
+                chunk.setMesh(mesher.getMesh());
+            } catch (Exception e) {
+                Logger.log(Logger.LogLevel.ERROR, e.getMessage());
+            }
         }
     }
 
-    public ArrayList<RenderableBase> getVisibleChunks(Vector3f playerPos, Vector3f lookVector){
+    public ArrayList<Renderable> getVisibleChunks(Vector3f playerPos, Vector3f lookVector){
       //TODO COMPUTE VISIBLE CHUNKS FRUSTUM CULLING
         return new ArrayList<>(chunkMap.values());
     }
 
     public void cleanup() {
         for (Chunk chunk : chunkMap.values()) {
-
+            //TODO IMPLEMENT CLEANUP
         }
     }
+
+
+    public void addPoint(int x, int y, int z, Voxel voxel) {
+        Point3d chunkPoint = new Point3d(x/16, y/16, z/16);
+        if (!chunkMap.containsKey(chunkPoint))
+            chunkMap.put(chunkPoint, createNewChunk(x / 16, y / 16, z / 16));
+
+        Chunk c = chunkMap.get(chunkPoint);
+        c.setVoxel(x % 16, y % 16, z % 16, voxel);
+        setNeedsMeshUpdate(chunkPoint);
+    }
+
+    private Chunk createNewChunk(int x, int y, int z) {
+        Chunk chunk = new Chunk(x, y, z);
+        Logger.log(Logger.LogLevel.DEBUG, "Adding new chunk " + new Point3d(x,y,z).toString());
+        chunk.setup(glCapabilities);
+        return chunk;
+    }
+
+
 }

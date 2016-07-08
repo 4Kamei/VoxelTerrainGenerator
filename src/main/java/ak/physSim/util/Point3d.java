@@ -54,4 +54,14 @@ public class Point3d {
     public int hashCode() {
         return ((x * 73856093) ^ (y * 83492879) ^ (z * 10002563));
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Point3d{");
+        sb.append("x=").append(x);
+        sb.append(", y=").append(y);
+        sb.append(", z=").append(z);
+        sb.append('}');
+        return sb.toString();
+    }
 }

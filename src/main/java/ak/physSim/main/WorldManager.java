@@ -1,13 +1,12 @@
 package ak.physSim.main;
 
-import ak.physSim.entity.Player;
-import ak.physSim.chunk.Chunk;
 import ak.physSim.chunk.ChunkManager;
-import ak.physSim.render.RenderableBase;
-import ak.physSim.util.Logger;
-import ak.physSim.util.Point3d;
+import ak.physSim.entity.Player;
+import ak.physSim.render.Renderable;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
+import com.flowpowered.noise.Noise;
+import com.flowpowered.noise.NoiseQuality;
 import org.lwjgl.opengl.GLCapabilities;
 
 import java.util.ArrayList;
@@ -22,70 +21,33 @@ public class WorldManager {
     public WorldManager(Player player, GLCapabilities capabilities){
         this.player = player;
         this.capabilities = capabilities;
-        Chunk chunk;
-        manager = new ChunkManager();
-        int y = 1;
-        int limit = 5;
-        for (int x = -limit; x <= limit; x++) {
-            for (int z = -limit; z <= limit; z++) {
-                chunk = new Chunk(x, y, z);
-                chunk.setup(this.capabilities);
-                for (int cX = 0; cX < 16; cX++) {
-                    for (int cZ = 0; cZ < 16; cZ++) {
-                        for (int cY = 0; cY < 16; cY++) {
-                            chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.GRASS));
-                        }
-                    }
-                }
-                manager.addChunk(new Point3d(x, y, z), chunk);
-            }
-        }
-        y = 0;
-        for (int x = -limit; x <= limit; x++) {
-            for (int z = -limit; z <= limit; z++) {
-                chunk = new Chunk(x, y, z);
-                chunk.setup(this.capabilities);
-                if (x != 0 && z != 0){
-                    for (int cX = 0; cX < 16; cX++) {
-                        for (int cZ = 0; cZ < 16; cZ++) {
-                            for (int cY = 0; cY < 16; cY++) {
-                                chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
-                            }
-                        }
-                    }
-                    manager.addChunk(new Point3d(x, y, z), chunk);
-                }
-            }
-        }
-        y = -1;
-        for (int x = -limit; x <= limit; x++) {
-            for (int z = -limit; z <= limit; z++) {
-                chunk = new Chunk(x, y, z);
-                chunk.setup(this.capabilities);
-                for (int cX = 0; cX < 16; cX++) {
-                    for (int cZ = 0; cZ < 16; cZ++) {
-                        for (int cY = 0; cY < 16; cY++) {
-                            chunk.setVoxel(cX, cY, cZ, new Voxel(VoxelType.DARK_STONE));
-                        }
-                    }
-                }
-                manager.addChunk(new Point3d(x, y, z), chunk);
-            }
-        }
 
+        generate();
 
-
-        try {
-            Logger.log(Logger.LogLevel.ALL, "Gen of terrain meshes started");
-            long time = System.currentTimeMillis();
-            manager.comupteAll();
-            Logger.log(Logger.LogLevel.ALL, "Gen of terrain meshes finished in " + (System.currentTimeMillis() - time) + "ms");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
-    public ArrayList<RenderableBase> getObjectsToRender() {
+    private void generate() {
+        manager = new ChunkManager(capabilities);
+        for (int x = 0; x < 100; x++) {
+            for (int z = 0; z < 100; z++) {
+                int height = 5 + (int) ((Noise.gradientCoherentNoise3D(x/16f, 0, z/16f, 23423, NoiseQuality.FAST) + 1)/2 * 30);
+                for (int y = 0; y < height; y++) {
+                    if (y < 10)
+                        addPoint(x, y, z, new Voxel(VoxelType.DARK_STONE));
+                    else
+                        addPoint(x, y, z, new Voxel(VoxelType.STONE));
+                }
+                addPoint(x, height, z, new Voxel(VoxelType.GRASS));
+            }
+        }
+        manager.comupteAll();
+    }
+
+    public void addPoint(int x, int y, int z, Voxel voxel){
+        manager.addPoint(x, y, z, voxel);
+    }
+
+    public ArrayList<Renderable> getObjectsToRender() {
         return manager.getVisibleChunks(player.getTransform(), player.getLookVector());
     }
 

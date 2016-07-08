@@ -3,7 +3,7 @@
 in vec3 exColour;
 out vec4 fragColor;
 
-void main()
+void main(void)
 {
-    fragColor = vec4(exColour, 1.0);
+  fragColor = vec4(exColour, 1.0);
 }

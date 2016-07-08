@@ -26,5 +26,8 @@
         <module name="GLProject" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="GLProject" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

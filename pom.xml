@@ -29,6 +29,11 @@
     <dependencies>
         <dependency>
             <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl</artifactId>
+            <version>${lwjgl.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
             <artifactId>lwjgl-platform</artifactId>
             <version>${lwjgl.version}</version>
             <classifier>${native.target}</classifier>
@@ -37,6 +42,11 @@
             <groupId>org.joml</groupId>
             <artifactId>joml</artifactId>
             <version>${joml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.flowpowered</groupId>
+            <artifactId>flow-noise</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 
@@ -55,6 +65,14 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>

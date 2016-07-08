@@ -7,7 +7,7 @@ import ak.physSim.util.ShaderProgram;
 import ak.physSim.util.Utils;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
+import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -23,8 +23,8 @@ public class Main {
     // The window handle
     private long window;
 
-    private int WIDTH  = 800,
-                HEIGHT = 600;
+    private int HEIGHT = 600,
+                WIDTH  = 800;
 
     //Projection Matrix stuff;
     private static final float fov  = (float) (Math.PI/4); //60 degrees
@@ -112,6 +112,8 @@ public class Main {
         // Make the window visible
         glfwShowWindow(window);
 
+
+
         //Create GLContext
     }
     private void initGL() throws Exception {
@@ -131,21 +133,21 @@ public class Main {
         renderer = new Renderer(shaderProgram);
     }
     private void initObjects(){
-        player = new Player(new Vector3f(10, 10, 10), new Vector3f(0, 0, 0));
+        player = new Player(new Vector3f(0, 17, 0), new Vector3f(0, 0, 0));
         map = new WorldManager(player, /*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
     }
     private void loop() throws Exception {
         glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
             @Override
             public void invoke(long l, double x, double y) {
-                player.setLook((float) ((x / (WIDTH) - 0.5f) * Math.PI * 2), (float) ((y / HEIGHT - 0.5f) * Math.PI * 2));
+                player.updateMouse((float) (x / WIDTH), (float) (y / HEIGHT));
             }
         });
 
         while ( !glfwWindowShouldClose(window) ) {
             update();
             renderer.addRenderables(map.getObjectsToRender());
-            renderer.render(projectionMatrix, player.getAxisVector());
+            renderer.render(projectionMatrix);
             glfwSwapBuffers(window); // swap the color buffers
 
             glfwPollEvents();
@@ -160,8 +162,14 @@ public class Main {
                 .perspective(fov, aspectRatio, zNear, zFar)
                 .rotateX(player.getPitch())
                 .rotateY(player.getAzimuth());
-        projectionMatrix.translate(player.getTransform());
-        player.update(16);
+                projectionMatrix.translate(player.getTransform());
+        player.update(/*DELTAS*/ 16);
+        if (player.isActiveUpdated()){
+            if (player.lookActive())
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            else
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
     }
 
     public static void main(String[] args) {
