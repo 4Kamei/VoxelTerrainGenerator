@@ -32,8 +32,10 @@ public class Renderer {
         program.setUniform("projectionMatrix", projectionMatrix);
 
         for (Renderable renderable : renderables) {
-            program.setUniform("worldMatrix", renderable.getTransformation().getTranslationMatrix());
-            renderable.render();
+            if (renderable instanceof Chunk) {
+                program.setUniform("worldMatrix", renderable.getTransformation().getTranslationMatrix());
+                ((Chunk) renderable).render();
+            }
         }
 
         program.unbind();
