@@ -133,7 +133,7 @@ public class Main {
         renderer = new Renderer(shaderProgram);
     }
     private void initObjects(){
-        player = new Player(new Vector3f(0, 17, 0), new Vector3f(0, 0, 0));
+        player = new Player(new Vector3f(0, 30, 0), (float) Math.PI, (float) (Math.PI/2));
         map = new WorldManager(player, /*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
     }
     private void loop() throws Exception {

@@ -20,8 +20,7 @@ public class Player {
     private boolean active;
     private boolean activeUpdated;
 
-    public Player(Vector3f playerPosition, Vector3f playerLookVector) {
-        this.lookVector = playerLookVector;
+    public Player(Vector3f playerPosition, float azimuth, float pitch) {
         this.position = playerPosition;
     }
 
@@ -55,6 +54,7 @@ public class Player {
             Logger.log(Logger.LogLevel.DEBUG, String.format("POS: %.3f, %.3f, %.3f", position.x, position.y, position.z));
             Logger.log(Logger.LogLevel.DEBUG, String.format("NORM POS %.3f, %.3f, %.3f",position.x/position.length(), position.y/position.length(), position.z/position.length()));
             Logger.log(Logger.LogLevel.DEBUG, String.format("EYE: %.3f, %.3f, %.3f", lookVector.x, lookVector.y, lookVector.z));
+            Logger.log(Logger.LogLevel.DEBUG, String.format("Azimuth: %.2f \n Pitch: %.2f", azimuth/Math.PI, pitch/Math.PI));
         }
     }
 

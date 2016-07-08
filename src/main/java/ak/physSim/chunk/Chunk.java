@@ -7,6 +7,7 @@ import ak.physSim.util.Logger;
 import ak.physSim.util.Reference;
 import ak.physSim.voxel.Voxel;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GLCapabilities;
@@ -14,6 +15,7 @@ import org.lwjgl.opengl.GLCapabilities;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static ak.physSim.util.Reference.CHUNK_SIZE;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -30,10 +32,10 @@ public class Chunk extends Renderable {
     //Stores if mesh needs to be recreated
 
     //Position as vector, used for transform
-    private Vector3f position;
+    private Vector3i position;
 
     public Chunk(int x, int y, int z) {
-        this.position = new Vector3f(x, y, z).mul(16);
+        this.position = new Vector3i(x, y, z).mul(CHUNK_SIZE);
     }
 
     public Voxel[][][] getVoxels() {
@@ -52,6 +54,7 @@ public class Chunk extends Renderable {
         GL30.glBindVertexArray(mesh.getVaoId());
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 //        Logger.log(Logger.LogLevel.DEBUG, "Rendering at " + String.format("{%.1f,%.1f,%.1f}", position.x, position.y, position.z));
         glDrawElements(GL_TRIANGLES, mesh.getVertCount(), GL_UNSIGNED_INT, 0);
         glDisableVertexAttribArray(1);
@@ -62,7 +65,7 @@ public class Chunk extends Renderable {
     @Override
     public void setup(GLCapabilities capabilities){
         GL.setCapabilities(capabilities);
-        transformation  = new Transformation(position, new Vector3f(0, 0, 0), 1f);
+        transformation  = new Transformation(new Vector3f(position.x, position.y, position.z), new Vector3f(0, 0, 0), 1f);
     }
 
     public void setMesh(Mesh mesh){
@@ -188,5 +191,9 @@ public class Chunk extends Renderable {
     public void cleanup() {
         mesh.cleanup();
         transformation = null;
+    }
+
+    public Vector3i getPosition() {
+        return position;
     }
 }

@@ -18,6 +18,8 @@ public class WorldManager {
     private ChunkManager manager;
     private Player player;
     private GLCapabilities capabilities;
+    private int blockCounter = 0;
+
     public WorldManager(Player player, GLCapabilities capabilities){
         this.player = player;
         this.capabilities = capabilities;
@@ -28,8 +30,8 @@ public class WorldManager {
 
     private void generate() {
         manager = new ChunkManager(capabilities);
-        for (int x = 0; x < 100; x++) {
-            for (int z = 0; z < 100; z++) {
+        for (int x = -100; x < 100; x++) {
+            for (int z = -100; z < 100; z++) {
                 int height = 5 + (int) ((Noise.gradientCoherentNoise3D(x/16f, 0, z/16f, 23423, NoiseQuality.FAST) + 1)/2 * 30);
                 for (int y = 0; y < height; y++) {
                     if (y < 10)

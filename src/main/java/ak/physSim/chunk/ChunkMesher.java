@@ -5,6 +5,7 @@ import ak.physSim.util.Logger;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,9 +34,11 @@ public class ChunkMesher{
     private int indexOffset = 0;
     private Chunk chunk;
     private Mesh mesh;
+    private ChunkManager manager;
 
-    public ChunkMesher(Chunk chunk) {
+    public ChunkMesher(Chunk chunk, ChunkManager manager) {
         this.chunk = chunk;
+        this.manager = manager;
         colourBuffer = new ArrayList<>();
         verticesBuffer = new ArrayList<>();
         indicesBuffer = new ArrayList<>();
@@ -104,7 +107,33 @@ public class ChunkMesher{
             voxelFace.transparent = true;
             voxelFace.type = VoxelType.AIR;
         } else {
-            voxelFace.transparent = vox.getIsVisible();
+            int addX, addY, addZ;
+            addX = x;
+            addY = y;
+            addZ = z;
+            switch (side) {
+                case X_PLUS:
+                    addX++;
+                    break;
+                case X_MINUS:
+                    addX--;
+                    break;
+                case Z_MINUS:
+                    addZ--;
+                    break;
+                case Z_PLUS:
+                    addZ++;
+                    break;
+                case Y_PLUS:
+                    addY++;
+                    break;
+                case Y_MINUS:
+                    addY--;
+                    break;
+            }
+            Vector3i pos = chunk.getPosition();
+            Voxel adj = manager.getVoxel(pos.x + addX, pos.y + addY, pos.z + addZ);
+            voxelFace.transparent = adj != null && !adj.getIsVisible();
             voxelFace.type = vox.getType();
         }
         voxelFace.side = side;
