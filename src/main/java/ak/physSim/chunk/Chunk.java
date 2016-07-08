@@ -1,6 +1,6 @@
 package ak.physSim.chunk;
 
-import ak.physSim.render.Mesh;
+import ak.physSim.render.meshes.Mesh;
 import ak.physSim.render.Renderable;
 import ak.physSim.render.Transformation;
 import ak.physSim.util.Logger;
@@ -30,7 +30,7 @@ public class Chunk extends Renderable {
     private Voxel[][][] voxels = new Voxel[Reference.CHUNK_SIZE][Reference.CHUNK_SIZE][Reference.CHUNK_SIZE];
 
     //Stores if mesh needs to be recreated
-
+    Mesh mesh;
     //Position as vector, used for transform
     private Vector3i position;
 
@@ -54,7 +54,7 @@ public class Chunk extends Renderable {
         GL30.glBindVertexArray(mesh.getVaoId());
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 //        Logger.log(Logger.LogLevel.DEBUG, "Rendering at " + String.format("{%.1f,%.1f,%.1f}", position.x, position.y, position.z));
         glDrawElements(GL_TRIANGLES, mesh.getVertCount(), GL_UNSIGNED_INT, 0);
         glDisableVertexAttribArray(1);
@@ -62,7 +62,6 @@ public class Chunk extends Renderable {
         GL30.glBindVertexArray(0);
     }
 
-    @Override
     public void setup(GLCapabilities capabilities){
         GL.setCapabilities(capabilities);
         transformation  = new Transformation(new Vector3f(position.x, position.y, position.z), new Vector3f(0, 0, 0), 1f);

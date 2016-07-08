@@ -32,14 +32,14 @@ public class WorldManager {
         manager = new ChunkManager(capabilities);
         for (int x = -100; x < 100; x++) {
             for (int z = -100; z < 100; z++) {
-                int height = 5 + (int) ((Noise.gradientCoherentNoise3D(x/16f, 0, z/16f, 23423, NoiseQuality.FAST) + 1)/2 * 30);
+                int height = 5 + (int) ((Noise.gradientCoherentNoise3D(x/32f, 0, z/32f, 23423, NoiseQuality.FAST) + 1)/2 * 60);
                 for (int y = 0; y < height; y++) {
                     if (y < 10)
                         addPoint(x, y, z, new Voxel(VoxelType.DARK_STONE));
                     else
                         addPoint(x, y, z, new Voxel(VoxelType.STONE));
                 }
-                addPoint(x, height, z, new Voxel(VoxelType.GRASS));
+                addPoint(x, height, z, new Voxel(VoxelType.STONE));
             }
         }
         manager.comupteAll();

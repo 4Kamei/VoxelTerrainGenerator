@@ -1,6 +1,6 @@
 package ak.physSim.chunk;
 
-import ak.physSim.render.Mesh;
+import ak.physSim.render.meshes.Mesh;
 import ak.physSim.util.Logger;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;

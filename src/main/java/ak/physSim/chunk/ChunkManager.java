@@ -77,7 +77,7 @@ public class ChunkManager {
 
     public void cleanup() {
         for (Chunk chunk : chunkMap.values()) {
-            //TODO IMPLEMENT CLEANUP
+            chunk.cleanup();
         }
     }
 
