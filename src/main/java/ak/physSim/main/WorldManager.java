@@ -15,6 +15,7 @@ import java.util.ArrayList;
  * Created by Aleksander on 23/06/2016.
  */
 public class WorldManager {
+    private static final int SIZE = 16;
     private ChunkManager manager;
     private Player player;
     private GLCapabilities capabilities;
@@ -40,8 +41,10 @@ public class WorldManager {
                         addPoint(x, y, z, new Voxel(VoxelType.STONE));
                 }
                 addPoint(x, height, z, new Voxel(VoxelType.STONE));
+
             }
         }
+
         manager.comupteAll();
     }
 
@@ -50,7 +53,7 @@ public class WorldManager {
     }
 
     public ArrayList<Renderable> getObjectsToRender() {
-        return manager.getVisibleChunks(player.getTransform(), player.getLookVector());
+        return manager.getChunks();
     }
 
     public void cleanup() {

@@ -5,6 +5,8 @@ import ak.physSim.util.Logger;
 import ak.physSim.util.Point3d;
 import ak.physSim.util.Reference;
 import ak.physSim.voxel.Voxel;
+import org.joml.FrustumIntersection;
+import org.joml.FrustumRayBuilder;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GLCapabilities;
 
@@ -53,7 +55,7 @@ public class ChunkManager {
                 Logger.log(Logger.LogLevel.ERROR, e.getMessage());
             }
             Logger.log(Logger.LogLevel.DEBUG, "Chunk Loop is " + i);
-            Logger.log(Logger.LogLevel.DEBUG, "Melh Update " + needsMeshUpdate.size());
+            Logger.log(Logger.LogLevel.DEBUG, "Mesh Update " + needsMeshUpdate.size());
         }
 
     }
@@ -70,10 +72,11 @@ public class ChunkManager {
         }
     }
 
-    public ArrayList<Renderable> getVisibleChunks(Vector3f playerPos, Vector3f lookVector){
-      //TODO COMPUTE VISIBLE CHUNKS FRUSTUM CULLING
+    public ArrayList<Renderable> getChunks(){
         return new ArrayList<>(chunkMap.values());
     }
+
+
 
     public void cleanup() {
         for (Chunk chunk : chunkMap.values()) {
