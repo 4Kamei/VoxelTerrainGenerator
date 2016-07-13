@@ -33,6 +33,8 @@ public class Main {
 
     private Matrix4f projectionMatrix;
 
+    private Matrix4f viewMatrix = new Matrix4f();
+
     private ShaderProgram shaderProgram;
 
     //Try decouple later on if possible
@@ -45,6 +47,7 @@ public class Main {
     //Game renderer, TODO: Run in different thread?
     private Renderer renderer;
     private Player player;
+
 
     public void run() {
         Logger.log(Logger.LogLevel.ALL,"Running LWJGL Version" + Version.getVersion());
@@ -124,14 +127,16 @@ public class Main {
         shaderProgram.createVertexShader(Utils.loadResource("src/main/GLSL/vertex.vs"));
         shaderProgram.createFragmentShader(Utils.loadResource("src/main/GLSL/fragment.fs"));
         shaderProgram.link();
-        shaderProgram.createUniform("projectionMatrix");
-        shaderProgram.createUniform("worldMatrix");
+        shaderProgram.createUniform("projection");
+        shaderProgram.createUniform("view");
+        shaderProgram.createUniform("model");
 
         projectionMatrix = new Matrix4f().perspective(fov, aspectRatio, zNear, zFar);
 
 
-        renderer = new Renderer(shaderProgram);
+        renderer = new Renderer(shaderProgram, projectionMatrix);
     }
+
     private void initObjects(){
         player = new Player(new Vector3f(0, 30, 0), (float) Math.PI, (float) (Math.PI/2));
         map = new WorldManager(player, /*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
@@ -147,7 +152,7 @@ public class Main {
         while ( !glfwWindowShouldClose(window) ) {
             update();
             renderer.addRenderables(map.getObjectsToRender());
-            renderer.render(projectionMatrix);
+            renderer.render(viewMatrix);
             glfwSwapBuffers(window); // swap the color buffers
 
             glfwPollEvents();
@@ -158,11 +163,11 @@ public class Main {
     }
 
     private void update() {
-        projectionMatrix.identity()
-                .perspective(fov, aspectRatio, zNear, zFar)
+        viewMatrix.identity()
                 .rotateX(player.getPitch())
                 .rotateY(player.getAzimuth());
-                projectionMatrix.translate(player.getTransform());
+        viewMatrix.translate(player.getTransform());
+
         player.update(/*DELTAS*/ 16);
         if (player.isActiveUpdated()){
             if (player.lookActive())

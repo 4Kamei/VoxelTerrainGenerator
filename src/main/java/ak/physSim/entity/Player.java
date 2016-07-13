@@ -22,6 +22,9 @@ public class Player {
 
     public Player(Vector3f playerPosition, float azimuth, float pitch) {
         this.position = playerPosition;
+        this.pitch = pitch;
+        this.azimuth = azimuth;
+        caluclateLookVector();
     }
 
     public void setKeys(int key, int action){
@@ -65,10 +68,8 @@ public class Player {
     public void updateMouse(float mouseX, float mouseY){
         dmouseX = mouseX - lmouseX;
         lmouseX = mouseX;
-        Logger.log(Logger.LogLevel.DEBUG, dmouseX + "");
         dmouseY = mouseY - lmouseY;
         lmouseY = mouseY;
-        Logger.log(Logger.LogLevel.DEBUG, dmouseY + "");
         if(active){
             float dAz = (float) (dmouseX * Math.PI * 2);
             float dPi = (float) (dmouseY * Math.PI * 2);
@@ -90,8 +91,6 @@ public class Player {
     private void caluclateLookVector() {
         float sinPitch = (float) Math.sin(-pitch);
         lookVector = new Vector3f((float) (-sinPitch*Math.sin(azimuth)), (float) Math.cos(pitch), (float) (sinPitch*Math.cos(azimuth)));
-        Logger.log(Logger.LogLevel.DEBUG, String.format("EYE: %.3f, %.3f, %.3f", lookVector.x, lookVector.y, lookVector.z));
-        Logger.log(Logger.LogLevel.DEBUG, String.format("AXS: %d, %d, %d", getAxisVector().x, getAxisVector().y, getAxisVector().z));
 
     }
 

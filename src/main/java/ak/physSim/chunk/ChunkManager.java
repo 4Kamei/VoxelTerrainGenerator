@@ -114,7 +114,7 @@ public class ChunkManager {
         return null;
     }
 
-    private int getChunkPos(int x) {
-        return (int) Math.floor(x/(double) CHUNK_SIZE);
+    private int getChunkPos(int pos) {
+        return (int) Math.floor(pos/(double) CHUNK_SIZE);
     }
 }
