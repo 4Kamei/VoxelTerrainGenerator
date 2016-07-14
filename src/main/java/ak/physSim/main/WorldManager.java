@@ -15,11 +15,9 @@ import java.util.ArrayList;
  * Created by Aleksander on 23/06/2016.
  */
 public class WorldManager {
-    private static final int SIZE = 16;
     private ChunkManager manager;
     private Player player;
     private GLCapabilities capabilities;
-    private int blockCounter = 0;
 
     public WorldManager(Player player, GLCapabilities capabilities){
         this.player = player;

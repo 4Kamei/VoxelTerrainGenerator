@@ -24,12 +24,13 @@ public class Mesh {
     private int vboIndicesId;
     private int vboColourId;
     private int vertCount;
+    private int vboNormalsId;
 
     public Mesh(FloatBuffer floatBuffer, FloatBuffer colourBuffer, IntBuffer intBuffer, int vertCount){
-        createMesh(floatBuffer, colourBuffer, intBuffer, vertCount);
+        createMesh(floatBuffer, colourBuffer, intBuffer, null, vertCount);
     }
 
-    public Mesh(float[] vertices, float[] colours, int[] indices) {
+    public Mesh(float[] vertices, float[] colours, int[] indices, float[] normals) {
         FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(vertices.length);
         verticesBuffer.put(vertices);
         verticesBuffer.flip();
@@ -38,14 +39,18 @@ public class Mesh {
         colourBuffer.put(colours);
         colourBuffer.flip();
 
+        FloatBuffer normalsBuffer = BufferUtils.createFloatBuffer(colours.length);
+        normalsBuffer.put(normals);
+        normalsBuffer.flip();
+
         IntBuffer indicesBuffer = BufferUtils.createIntBuffer(indices.length);
         indicesBuffer.put(indices);
         indicesBuffer.flip();
 
-        createMesh(verticesBuffer, colourBuffer, indicesBuffer, indices.length);
+        createMesh(verticesBuffer, colourBuffer, indicesBuffer, normalsBuffer, indices.length);
 
     }
-    private void createMesh(FloatBuffer floatBuffer, FloatBuffer colourBuffer, IntBuffer intBuffer, int vertCount){
+    private void createMesh(FloatBuffer floatBuffer, FloatBuffer colourBuffer, IntBuffer intBuffer, FloatBuffer normalsBuffer, int vertCount){
         this.vertCount = vertCount;
 
         vaoId = GL30.glGenVertexArrays();
@@ -54,6 +59,11 @@ public class Mesh {
         vboIndicesId = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesId);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, intBuffer, GL_DYNAMIC_DRAW);
+
+        vboNormalsId = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, vboNormalsId);
+        glBufferData(GL_ARRAY_BUFFER, normalsBuffer, GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
 
         vboColourId = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboColourId);
@@ -64,6 +74,7 @@ public class Mesh {
         glBindBuffer(GL_ARRAY_BUFFER, vboVertexId);
         glBufferData(GL_ARRAY_BUFFER, floatBuffer, GL_DYNAMIC_DRAW);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         GL30.glBindVertexArray(0);
@@ -87,6 +98,7 @@ public class Mesh {
         glDeleteBuffers(vboVertexId);
         glDeleteBuffers(vboIndicesId);
         glDeleteBuffers(vboColourId);
+        glDeleteBuffers(vboNormalsId);
 
         // Delete the VAO
         GL30.glBindVertexArray(0);

@@ -74,8 +74,7 @@ public class Main {
     private void init() throws Exception {
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
-        GLFWErrorCallback.createPrint(System.err).set();
-
+        GLFWErrorCallback.createPrint(System.out).set();
         // Initialize GLFW. Most GLFW functions will not work before doing this.
         if (!glfwInit())
             throw new IllegalStateException("Unable to initialize GLFW");
@@ -123,14 +122,19 @@ public class Main {
         GL.createCapabilities();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glEnable(GL_DEPTH_TEST);
+
         shaderProgram = new ShaderProgram();
         shaderProgram.createVertexShader(Utils.loadResource("src/main/GLSL/vertex.vs"));
         shaderProgram.createFragmentShader(Utils.loadResource("src/main/GLSL/fragment.fs"));
         shaderProgram.link();
+
         shaderProgram.createUniform("projection");
         shaderProgram.createUniform("view");
+
         shaderProgram.createUniform("model");
 
+        shaderProgram.createLightUniform("light");
+        //shaderProgram.setUniform("light.colIntensities", new Vector3f(1, 1, 1));
         projectionMatrix = new Matrix4f().perspective(fov, aspectRatio, zNear, zFar);
 
 
@@ -138,7 +142,7 @@ public class Main {
     }
 
     private void initObjects(){
-        player = new Player(new Vector3f(0, 30, 0), (float) Math.PI, (float) (Math.PI/2));
+        player = new Player(new Vector3f(17, 41, 80), (float) Math.PI, (float) (Math.PI/2));
         map = new WorldManager(player, /*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
     }
     private void loop() throws Exception {
@@ -167,7 +171,11 @@ public class Main {
                 .rotateX(player.getPitch())
                 .rotateY(player.getAzimuth());
         viewMatrix.translate(player.getTransform());
-
+        try {
+            shaderProgram.setUniform("light.position", player.getTransform().negate());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         player.update(/*DELTAS*/ 16);
         if (player.isActiveUpdated()){
             if (player.lookActive())

@@ -7,6 +7,7 @@ import ak.physSim.voxel.VoxelType;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -31,6 +32,8 @@ public class ChunkMesher{
     private ArrayList<Float> verticesBuffer;
     private ArrayList<Float> colourBuffer;
     private ArrayList<Integer> indicesBuffer;
+    private ArrayList<Float> normalsBuffer;
+
     private int indexOffset = 0;
     private Chunk chunk;
     private Mesh mesh;
@@ -42,6 +45,7 @@ public class ChunkMesher{
         colourBuffer = new ArrayList<>();
         verticesBuffer = new ArrayList<>();
         indicesBuffer = new ArrayList<>();
+        normalsBuffer = new ArrayList<>();
     }
 
     public void run(){
@@ -74,9 +78,14 @@ public class ChunkMesher{
         for (int i = 0; i < indices.length; i++) {
             indices[i] = intIter.next();
         }
-
         Logger.log(Logger.LogLevel.DEBUG, "Length of indices array " + indices.length);
-        mesh = new Mesh(vert, colour, indices);
+        float[] normals = new float[normalsBuffer.size()];
+        Iterator<Float> normIter = normalsBuffer.iterator();
+        for (int i = 0; i < normals.length; i++) {
+            normals[i] = normIter.next();
+        }
+        Logger.log(Logger.LogLevel.DEBUG, "Length of indices array " + indices.length);
+        mesh = new Mesh(vert, colour, indices, normals);
     }
 
     public Mesh getMesh() throws Exception {
@@ -358,10 +367,30 @@ public class ChunkMesher{
         Vector3f[] vector3fs = new Vector3f[]{topLeft, bottomLeft, bottomRight, topRight};
         float[] col = voxel.type.getColour();
 
+        Vector3f normal = new Vector3f();
+        switch (voxel.side){
+            case X_PLUS : normal = new Vector3f(1, 0, 0);
+                break;
+            case X_MINUS : normal = new Vector3f(-1, 0, 0);
+                break;
+            case Y_PLUS : normal = new Vector3f(0, 1, 0);
+                break;
+            case Y_MINUS : normal = new Vector3f(0, -1, 0);
+                break;
+            case Z_PLUS : normal = new Vector3f(0, 0, 1);
+                break;
+            case Z_MINUS : normal = new Vector3f(0, 0, -1);
+                break;
+        }
         for (Vector3f vector3f : vector3fs) {
             verticesBuffer.add(vector3f.x);
             verticesBuffer.add(vector3f.y);
             verticesBuffer.add(vector3f.z);
+
+            normalsBuffer.add(normal.x);
+            normalsBuffer.add(normal.y);
+            normalsBuffer.add(normal.z);
+
             colourBuffer.add(col[0]);
             colourBuffer.add(col[1]);
             colourBuffer.add(col[2]);
@@ -381,6 +410,7 @@ public class ChunkMesher{
             indicesBuffer.add(1 + indexOffset);
             indicesBuffer.add(0 + indexOffset);
         }
+
         indexOffset += 4;
     }
 }

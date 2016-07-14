@@ -1,7 +1,9 @@
 package ak.physSim.util;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GLUtil;
 
 import java.nio.FloatBuffer;
 import java.util.HashMap;
@@ -23,15 +25,22 @@ public class ShaderProgram {
     public ShaderProgram() throws Exception {
         uniforms = new HashMap<>();
         programId = glCreateProgram();
+        Logger.log(Logger.LogLevel.DEBUG, "Shader pID = " + programId);
         if (programId == 0) {
             throw new Exception("Could not create Shader");
         }
     }
 
+    public void createLightUniform(String uniformName) throws Exception {
+        //createUniform(uniformName + ".colIntensities");
+        createUniform(uniformName + ".position");
+    }
+
     public void createUniform(String uniformName) throws Exception {
         int uniformLocation = glGetUniformLocation(programId, uniformName);
+        Logger.log(Logger.LogLevel.DEBUG, uniformName + " location " + uniformLocation);
         if (uniformLocation < 0){
-            throw new Exception("Could not find uniform " + uniformName);
+            throw new Exception("Could not find uniform " + uniformName + " : " + uniformLocation);
         }
         uniforms.put(uniformName, uniformLocation);
     }
@@ -44,12 +53,24 @@ public class ShaderProgram {
         else
             throw new Exception("Uniform name not found " + uniformName);
     }
+
+    public void setUniform(String uniformName, Vector3f value) throws Exception {
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(3);
+        value.get(buffer);
+        if (uniforms.containsKey(uniformName))
+            glUniform3fv(uniforms.get(uniformName), buffer);
+        else
+            throw new Exception("Uniform name not found " + uniformName);
+    }
+
     public void createVertexShader(String shaderCode) throws Exception {
         vertexShaderId = createShader(shaderCode, GL_VERTEX_SHADER);
+        Logger.log(Logger.LogLevel.DEBUG, "Vertex Shader ID = " + vertexShaderId);
     }
 
     public void createFragmentShader(String shaderCode) throws Exception {
         fragmentShaderId = createShader(shaderCode, GL_FRAGMENT_SHADER);
+        Logger.log(Logger.LogLevel.DEBUG, "Fragment Shader ID = " + fragmentShaderId);
     }
 
     protected int createShader(String shaderCode, int shaderType) throws Exception {
