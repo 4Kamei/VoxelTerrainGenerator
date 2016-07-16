@@ -67,24 +67,29 @@ public class ChunkMesher{
             vert[i] = Vertiter.next();
         }
         Logger.log(Logger.LogLevel.DEBUG, "Length of vert array " + vert.length);
+
+
         float[] colour = new float[colourBuffer.size()];
         Iterator<Float> colIter = colourBuffer.iterator();
         for (int i = 0; i < colour.length; i++) {
             colour[i] = colIter.next();
         }
         Logger.log(Logger.LogLevel.DEBUG, "Length of colour array " + colour.length);
+
         int[] indices = new int[indicesBuffer.size()];
         Iterator<Integer> intIter = indicesBuffer.iterator();
         for (int i = 0; i < indices.length; i++) {
             indices[i] = intIter.next();
         }
         Logger.log(Logger.LogLevel.DEBUG, "Length of indices array " + indices.length);
+
         float[] normals = new float[normalsBuffer.size()];
         Iterator<Float> normIter = normalsBuffer.iterator();
         for (int i = 0; i < normals.length; i++) {
             normals[i] = normIter.next();
         }
-        Logger.log(Logger.LogLevel.DEBUG, "Length of indices array " + indices.length);
+        Logger.log(Logger.LogLevel.DEBUG, "Length of normals array " + indices.length);
+
         mesh = new Mesh(vert, colour, indices, normals);
     }
 

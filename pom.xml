@@ -69,12 +69,35 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
                 <configuration>
-                <source>1.8</source>
-                <target>1.8</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>ak.physSim.main.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>.</directory>
+                <includes>
+                    <include>**/fragment.fs</include>
+                    <include>**/vertex.vs</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 
     <profiles>
@@ -112,7 +135,4 @@
             </properties>
         </profile>
     </profiles>
-
-
-
 </project>

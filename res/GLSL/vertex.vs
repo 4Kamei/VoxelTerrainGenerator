@@ -15,7 +15,7 @@ out vec3 vertexNormal;
 void main()
 {
     exColour = inColour;
-    vertexNormal = inNormal;
-    vertexPos = pos;
-    gl_Position = projection * view * model * vec4(pos, 1.0);
+    vertexNormal = vec3(model * vec4(inNormal, 0));
+    vertexPos = vec3(model * vec4(pos, 1));
+    gl_Position = projection * view * vec4(vertexPos, 1.0);
 }

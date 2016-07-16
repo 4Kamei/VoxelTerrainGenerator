@@ -54,9 +54,13 @@ public class Chunk extends Renderable {
         GL30.glBindVertexArray(mesh.getVaoId());
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 //        Logger.log(Logger.LogLevel.DEBUG, "Rendering at " + String.format("{%.1f,%.1f,%.1f}", position.x, position.y, position.z));
         glDrawElements(GL_TRIANGLES, mesh.getVertCount(), GL_UNSIGNED_INT, 0);
+
+        glDisableVertexAttribArray(2);
         glDisableVertexAttribArray(1);
         glDisableVertexAttribArray(0);
         GL30.glBindVertexArray(0);

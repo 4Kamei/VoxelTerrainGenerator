@@ -7,6 +7,7 @@ import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
 import com.flowpowered.noise.Noise;
 import com.flowpowered.noise.NoiseQuality;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GLCapabilities;
 
 import java.util.ArrayList;
@@ -23,11 +24,49 @@ public class WorldManager {
         this.player = player;
         this.capabilities = capabilities;
 
-        generate();
+        generateLandscape();
 
     }
 
-    private void generate() {
+    private void generateLines(){
+
+        manager = new ChunkManager(capabilities);
+        addVoxel(0, 0, 0, new Voxel(VoxelType.STONE));
+        for (int i = 1; i < 10; i++) {
+            drawRing(0, 0, 5 * i, 2);
+        }
+        manager.comupteAll();
+    }
+
+    private void drawRing(int x0, int z0, int radius, int height)
+    {
+        int x = radius;
+        int z = 0;
+        int err = 0;
+
+        while (x >= z)
+        {
+            for (int y = 0; y < height; y++) {
+                addVoxel(x0 + x, y, z0 + z, new Voxel(VoxelType.STONE));
+                addVoxel(x0 + z, y, z0 + x, new Voxel(VoxelType.STONE));
+                addVoxel(x0 - z, y, z0 + x, new Voxel(VoxelType.STONE));
+                addVoxel(x0 - x, y, z0 + z, new Voxel(VoxelType.STONE));
+                addVoxel(x0 - x, y, z0 - z, new Voxel(VoxelType.STONE));
+                addVoxel(x0 - z, y, z0 - x, new Voxel(VoxelType.STONE));
+                addVoxel(x0 + z, y, z0 - x, new Voxel(VoxelType.STONE));
+                addVoxel(x0 + x, y, z0 - z, new Voxel(VoxelType.STONE));
+            }
+
+            z += 1;
+            err += 1 + 2*z;
+            if (2*(err-x) + 1 > 0)
+            {
+                x -= 1;
+                err += 1 - 2*x;
+            }
+        }
+    }
+    private void generateLandscape() {
         manager = new ChunkManager(capabilities);
         for (int x = -100; x < 100; x++) {
             for (int z = -100; z < 100; z++) {
@@ -56,5 +95,9 @@ public class WorldManager {
 
     public void cleanup() {
         manager.cleanup();
+    }
+
+    public void addVoxel(Vector3f position, Voxel voxel) {
+        addVoxel((int) position.x, (int) position.y, (int) position.z, voxel);
     }
 }

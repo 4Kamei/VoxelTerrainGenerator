@@ -1,5 +1,6 @@
 package ak.physSim.render;
 
+import ak.physSim.util.Logger;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -41,7 +42,6 @@ public class Transformation {
     }
 
     public Matrix4f getTranslationMatrix() {
-
         return transltionMatrix;
     }
 }

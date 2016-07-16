@@ -1,5 +1,6 @@
 package ak.physSim.main;
 
+import ak.physSim.Light;
 import ak.physSim.entity.Player;
 import ak.physSim.render.Renderer;
 import ak.physSim.util.Logger;
@@ -7,6 +8,7 @@ import ak.physSim.util.ShaderProgram;
 import ak.physSim.util.Utils;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
+import com.sun.xml.internal.ws.api.server.AbstractInstanceResolver;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.Version;
@@ -27,7 +29,7 @@ public class Main {
 
     private int HEIGHT = 600,
                 WIDTH  = 800;
-
+    Light light;
     //Projection Matrix stuff;
     private static final float fov  = (float) (Math.PI/4); //60 degrees
     private static final float zNear = 0.01f;
@@ -126,8 +128,8 @@ public class Main {
         glEnable(GL_DEPTH_TEST);
 
         shaderProgram = new ShaderProgram();
-        shaderProgram.createVertexShader(Utils.loadResource("src/main/GLSL/vertex.vs"));
-        shaderProgram.createFragmentShader(Utils.loadResource("src/main/GLSL/fragment.fs"));
+        shaderProgram.createVertexShader(Utils.loadResource("res/GLSL/vertex.vs"));
+        shaderProgram.createFragmentShader(Utils.loadResource("res/GLSL/fragment.fs"));
         shaderProgram.link();
 
         shaderProgram.createUniform("projection");
@@ -147,7 +149,7 @@ public class Main {
     }
 
     private void initObjects(){
-        player = new Player(new Vector3f(17, 41, 80), (float) Math.PI, (float) (Math.PI/2));
+        player = new Player(new Vector3f(0, 30, 0), (float) Math.PI, (float) (Math.PI/2));
         map = new WorldManager(player, /*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
     }
     private void loop() throws Exception {
@@ -160,12 +162,21 @@ public class Main {
 
         glfwSetMouseButtonCallback(window, new GLFWMouseButtonCallback() {
             @Override
-            public void invoke(long l, int button, int i1, int i2) {
-                System.out.println("l = [" + l + "], button = [" + button + "], i1 = [" + i1 + "], i2 = [" + i2 + "]");
+            public void invoke(long l, int button, int pressing, int i2) {
+                System.out.println("l = [" + l + "], button = [" + button + "], i1 = [" + pressing + "], i2 = [" + i2 + "]");
                 if (button == 1)
                     map.addVoxel((int) player.getPosition().x, (int) player.getPosition().y, (int) player.getPosition().z, new Voxel(VoxelType.GRASS));
                 if (button == 0)
                     map.addVoxel((int) player.getPosition().x, (int) player.getPosition().y, (int) player.getPosition().z, new Voxel(VoxelType.AIR));
+                if (button == 2) {
+                    if (light != null)
+                        map.addVoxel(light.getPosition(), new Voxel(VoxelType.AIR));
+                    light = new Light(player.getPosition());
+                    map.addVoxel(light.getPosition(), new Voxel(VoxelType.LIGHT));
+                    shaderProgram.bind();
+                    shaderProgram.setUniform("light.position", light.getPosition());
+                    shaderProgram.unbind();
+                }
             }
         });
 
@@ -188,9 +199,6 @@ public class Main {
                 .rotateY(player.getAzimuth());
         viewMatrix.translate(player.getTransform());
         try {
-            shaderProgram.bind();
-            shaderProgram.setUniform("light.position", player.getPosition());
-            shaderProgram.unbind();
         } catch (Exception e) {
             e.printStackTrace();
         }

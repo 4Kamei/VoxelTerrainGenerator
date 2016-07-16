@@ -39,7 +39,7 @@ public class Mesh {
         colourBuffer.put(colours);
         colourBuffer.flip();
 
-        FloatBuffer normalsBuffer = BufferUtils.createFloatBuffer(colours.length);
+        FloatBuffer normalsBuffer = BufferUtils.createFloatBuffer(normals.length);
         normalsBuffer.put(normals);
         normalsBuffer.flip();
 
@@ -50,7 +50,12 @@ public class Mesh {
         createMesh(verticesBuffer, colourBuffer, indicesBuffer, normalsBuffer, indices.length);
 
     }
-    private void createMesh(FloatBuffer floatBuffer, FloatBuffer colourBuffer, IntBuffer intBuffer, FloatBuffer normalsBuffer, int vertCount){
+    private void createMesh(FloatBuffer vericesBuffer,
+                            FloatBuffer colourBuffer,
+                            IntBuffer intBuffer,
+                            FloatBuffer normalsBuffer,
+                            int vertCount){
+
         this.vertCount = vertCount;
 
         vaoId = GL30.glGenVertexArrays();
@@ -72,7 +77,7 @@ public class Mesh {
 
         vboVertexId = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboVertexId);
-        glBufferData(GL_ARRAY_BUFFER, floatBuffer, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vericesBuffer, GL_DYNAMIC_DRAW);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
