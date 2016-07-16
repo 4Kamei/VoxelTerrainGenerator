@@ -27,8 +27,8 @@ public class Main {
     // The window handle
     private long window;
 
-    private int HEIGHT = 600,
-                WIDTH  = 800;
+    private int HEIGHT = 1200,
+                WIDTH  = 1600;
     Light light;
     //Projection Matrix stuff;
     private static final float fov  = (float) (Math.PI/4); //60 degrees
@@ -149,8 +149,9 @@ public class Main {
     }
 
     private void initObjects(){
-        player = new Player(new Vector3f(0, 30, 0), (float) Math.PI, (float) (Math.PI/2));
+        player = new Player(new Vector3f(-4, 30, 0), (float) Math.PI, (float) (Math.PI/2));
         map = new WorldManager(player, /*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
+        light = new Light(player.getPosition());
     }
     private void loop() throws Exception {
         glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
