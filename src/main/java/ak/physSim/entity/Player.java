@@ -106,6 +106,10 @@ public class Player {
         return new Vector3f(position).mul(-1);
     }
 
+    public Vector3f getPosition() {
+        return position;
+    }
+
     public float getAzimuth() {
         return azimuth;
     }

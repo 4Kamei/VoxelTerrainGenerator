@@ -34,11 +34,11 @@ public class WorldManager {
                 int height = 5 + (int) ((Noise.gradientCoherentNoise3D(x/32f, 0, z/32f, 23423, NoiseQuality.FAST) + 1)/2 * 60);
                 for (int y = 0; y < height; y++) {
                     if (y < 10)
-                        addPoint(x, y, z, new Voxel(VoxelType.DARK_STONE));
+                        addVoxel(x, y, z, new Voxel(VoxelType.DARK_STONE));
                     else
-                        addPoint(x, y, z, new Voxel(VoxelType.STONE));
+                        addVoxel(x, y, z, new Voxel(VoxelType.STONE));
                 }
-                addPoint(x, height, z, new Voxel(VoxelType.STONE));
+                addVoxel(x, height, z, new Voxel(VoxelType.STONE));
 
             }
         }
@@ -46,8 +46,8 @@ public class WorldManager {
         manager.comupteAll();
     }
 
-    public void addPoint(int x, int y, int z, Voxel voxel){
-        manager.addPoint(x, y, z, voxel);
+    public void addVoxel(int x, int y, int z, Voxel voxel){
+        manager.addVoxel(x, y, z, voxel);
     }
 
     public ArrayList<Renderable> getObjectsToRender() {

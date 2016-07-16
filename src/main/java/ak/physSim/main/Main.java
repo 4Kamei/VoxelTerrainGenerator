@@ -5,12 +5,14 @@ import ak.physSim.render.Renderer;
 import ak.physSim.util.Logger;
 import ak.physSim.util.ShaderProgram;
 import ak.physSim.util.Utils;
+import ak.physSim.voxel.Voxel;
+import ak.physSim.voxel.VoxelType;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
@@ -134,7 +136,10 @@ public class Main {
         shaderProgram.createUniform("model");
 
         shaderProgram.createLightUniform("light");
-        //shaderProgram.setUniform("light.colIntensities", new Vector3f(1, 1, 1));
+
+        shaderProgram.bind();
+        shaderProgram.setUniform("light.colIntensities", new Vector3f(1));
+        shaderProgram.unbind();
         projectionMatrix = new Matrix4f().perspective(fov, aspectRatio, zNear, zFar);
 
 
@@ -150,6 +155,17 @@ public class Main {
             @Override
             public void invoke(long l, double x, double y) {
                 player.updateMouse((float) (x / WIDTH), (float) (y / HEIGHT));
+            }
+        });
+
+        glfwSetMouseButtonCallback(window, new GLFWMouseButtonCallback() {
+            @Override
+            public void invoke(long l, int button, int i1, int i2) {
+                System.out.println("l = [" + l + "], button = [" + button + "], i1 = [" + i1 + "], i2 = [" + i2 + "]");
+                if (button == 1)
+                    map.addVoxel((int) player.getPosition().x, (int) player.getPosition().y, (int) player.getPosition().z, new Voxel(VoxelType.GRASS));
+                if (button == 0)
+                    map.addVoxel((int) player.getPosition().x, (int) player.getPosition().y, (int) player.getPosition().z, new Voxel(VoxelType.AIR));
             }
         });
 
@@ -172,7 +188,9 @@ public class Main {
                 .rotateY(player.getAzimuth());
         viewMatrix.translate(player.getTransform());
         try {
-            shaderProgram.setUniform("light.position", player.getTransform().negate());
+            shaderProgram.bind();
+            shaderProgram.setUniform("light.position", player.getPosition());
+            shaderProgram.unbind();
         } catch (Exception e) {
             e.printStackTrace();
         }

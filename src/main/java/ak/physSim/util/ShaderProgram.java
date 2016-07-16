@@ -32,35 +32,34 @@ public class ShaderProgram {
     }
 
     public void createLightUniform(String uniformName) throws Exception {
-        //createUniform(uniformName + ".colIntensities");
+        createUniform(uniformName + ".colIntensities");
         createUniform(uniformName + ".position");
     }
 
-    public void createUniform(String uniformName) throws Exception {
+    public void createUniform(String uniformName) {
         int uniformLocation = glGetUniformLocation(programId, uniformName);
         Logger.log(Logger.LogLevel.DEBUG, uniformName + " location " + uniformLocation);
         if (uniformLocation < 0){
-            throw new Exception("Could not find uniform " + uniformName + " : " + uniformLocation);
+            Logger.log(Logger.LogLevel.ERROR, "Could not find uniform " + uniformName);
+        } else {
+            uniforms.put(uniformName, uniformLocation);
         }
-        uniforms.put(uniformName, uniformLocation);
     }
 
-    public void setUniform(String uniformName, Matrix4f value) throws Exception {
+    public void setUniform(String uniformName, Matrix4f value)  {
         FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
         value.get(buffer);
         if (uniforms.containsKey(uniformName))
             glUniformMatrix4fv(uniforms.get(uniformName), false, buffer);
         else
-            throw new Exception("Uniform name not found " + uniformName);
+            Logger.log(Logger.LogLevel.ERROR, "Uniform name not found " + uniformName);
     }
 
-    public void setUniform(String uniformName, Vector3f value) throws Exception {
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(3);
-        value.get(buffer);
-        if (uniforms.containsKey(uniformName))
-            glUniform3fv(uniforms.get(uniformName), buffer);
-        else
-            throw new Exception("Uniform name not found " + uniformName);
+    public void setUniform(String uniformName, Vector3f value) {
+        if (uniforms.containsKey(uniformName)) {
+            glUniform3f(uniforms.get(uniformName), value.x, value.y, value.z);
+        } else
+            Logger.log(Logger.LogLevel.ERROR, "Uniform name not found " + uniformName);
     }
 
     public void createVertexShader(String shaderCode) throws Exception {

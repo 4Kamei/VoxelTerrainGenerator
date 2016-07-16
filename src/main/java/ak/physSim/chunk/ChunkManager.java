@@ -5,6 +5,7 @@ import ak.physSim.util.Logger;
 import ak.physSim.util.Point3d;
 import ak.physSim.util.Reference;
 import ak.physSim.voxel.Voxel;
+import ak.physSim.voxel.VoxelType;
 import org.joml.FrustumIntersection;
 import org.joml.FrustumRayBuilder;
 import org.joml.Vector3f;
@@ -73,6 +74,8 @@ public class ChunkManager {
     }
 
     public ArrayList<Renderable> getChunks(){
+        if(needsMeshUpdate.size() > 0)
+            comupteAll();
         return new ArrayList<>(chunkMap.values());
     }
 
@@ -85,12 +88,15 @@ public class ChunkManager {
     }
 
 
-    public void addPoint(int x, int y, int z, Voxel voxel) {
+    public void addVoxel(int x, int y, int z, Voxel voxel) {
         Point3d chunkPoint =  new Point3d(getChunkPos(x), getChunkPos(y), getChunkPos(z));
         if (!chunkMap.containsKey(chunkPoint))
             chunkMap.put(chunkPoint, createNewChunk(chunkPoint));
-        Chunk c = chunkMap.get(chunkPoint);
-        c.setVoxel(x - chunkPoint.getX()*CHUNK_SIZE, y - chunkPoint.getY()*CHUNK_SIZE, z - chunkPoint.getZ()*CHUNK_SIZE, voxel);
+        if(voxel.getType() != VoxelType.AIR){
+            chunkMap.get(chunkPoint).setVoxel(x - chunkPoint.getX() * CHUNK_SIZE, y - chunkPoint.getY() * CHUNK_SIZE, z - chunkPoint.getZ() * CHUNK_SIZE, voxel);
+        } else {
+            chunkMap.get(chunkPoint).setVoxel(x - chunkPoint.getX() * CHUNK_SIZE, y - chunkPoint.getY() * CHUNK_SIZE, z - chunkPoint.getZ() * CHUNK_SIZE, null);
+        }
         setNeedsMeshUpdate(chunkPoint);
     }
 

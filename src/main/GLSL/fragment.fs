@@ -13,9 +13,7 @@ struct AreaLight {
 };
 
 uniform AreaLight light;
-
 uniform mat4 model;
-
 
 out vec4 fragColor;
 
@@ -28,10 +26,10 @@ void main(void)
 
     vec3 fragPosition = vec3(model * vec4(vertexPos, 1));
 
-    vec3 surfaceToLight = light.position - vertexPos;
+    vec3 surfaceToLight = light.position - fragPosition;
 
-    float brightness = dot(normal, surfaceToLight) / (length(surfaceToLight));
-    brightness = clamp(brightness, 0, 1);
-    fragColor = vec4(brightness * exColour, 1.0);
+    float brightness = dot(normal, surfaceToLight) / length(surfaceToLight);
+    brightness = clamp(brightness,0, 1);
+    fragColor = vec4((brightness + 0.4) * light.colIntensities * exColour, 1.0);
 
 }
