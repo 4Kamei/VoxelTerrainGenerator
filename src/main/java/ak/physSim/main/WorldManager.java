@@ -24,8 +24,7 @@ public class WorldManager {
         this.player = player;
         this.capabilities = capabilities;
 
-        generateLines();
-
+        generateLandscape();
     }
 
     private void generateLines(){

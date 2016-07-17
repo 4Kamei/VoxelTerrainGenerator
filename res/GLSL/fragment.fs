@@ -10,7 +10,13 @@ struct AreaLight {
                    vec3 position;
 };
 
+struct DirectionalLight {
+                    vec3 direction;
+                    vec3 colIntensity;
+                    float power;
+};
 uniform AreaLight light;
+
 uniform mat4 model;
 
 out vec4 fragColor;

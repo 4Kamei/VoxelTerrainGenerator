@@ -1,14 +1,14 @@
-package ak.physSim;
+package ak.physSim.render.light;
 
 import org.joml.Vector3f;
 
 /**
  * Created by Aleksander on 16/07/2016.
  */
-public class Light {
+public class AreaLight {
     private Vector3f position;
 
-    public Light(Vector3f position) {
+    public AreaLight(Vector3f position) {
         this.position = position;
     }
 

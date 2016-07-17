@@ -25,12 +25,14 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
  */
 public class Chunk extends Renderable {
 
-    //Chunk size in blocks;
+    //Store block data
+    private Voxel[][][] voxels = new Voxel[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
 
-    private Voxel[][][] voxels = new Voxel[Reference.CHUNK_SIZE][Reference.CHUNK_SIZE][Reference.CHUNK_SIZE];
+    //Store lightmap data
+    public byte[][][] lightmap = new byte[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
 
-    //Stores if mesh needs to be recreated
     Mesh mesh;
+
     //Position as vector, used for transform
     private Vector3i position;
 
@@ -76,121 +78,6 @@ public class Chunk extends Renderable {
         this.mesh = mesh;
     }
 
-    /*
-    public void createMesh(){
-        Voxel v;
-        ArrayList<Float> floats = new ArrayList<>();
-        ArrayList<Integer> indices = new ArrayList<>();
-        int ind = 0;
-        for (int x = 1; x < voxels.length -1; x++) {
-            for (int y = 1; y < voxels[x].length -1; y++) {
-                for (int z = 1; z < voxels.length -1; z++) {
-                     v = voxels[x][y][z];
-                    int offset = ind;
-                    if (v.getIsVisible()){
-                        if (!voxels[x][y + 1][z].getIsVisible()){
-                            indices.add(0 + offset);
-                            indices.add(4 + offset);
-                            indices.add(3 + offset);
-                            indices.add(3 + offset);
-                            indices.add(4 + offset);
-                            indices.add(7 + offset);
-                            ind += 6;
-                        }
-                        //BOTTOM
-                        if (!voxels[x][y - 1][z].getIsVisible()){
-                            indices.add(1 + offset);
-                            indices.add(5 + offset);
-                            indices.add(2 + offset);
-                            indices.add(2 + offset);
-                            indices.add(5 + offset);
-                            indices.add(6 + offset);
-                            ind += 6;
-                        }
-                        //RIGHT
-                        if (!voxels[x - 1][y][z].getIsVisible()){
-                            indices.add(3 + offset);
-                            indices.add(2 + offset);
-                            indices.add(7 + offset);
-                            indices.add(7 + offset);
-                            indices.add(2 + offset);
-                            indices.add(6 + offset);
-                            ind += 6;
-                        }
-                        //LEFT
-                        if (!voxels[x + 1][y][z].getIsVisible()){
-                            indices.add(0 + offset);
-                            indices.add(1 + offset);
-                            indices.add(4 + offset);
-                            indices.add(4 + offset);
-                            indices.add(1 + offset);
-                            indices.add(5 + offset);
-                            ind += 6;
-                        }
-                        //FRONT
-                        if (!voxels[x][y][z + 1].getIsVisible()){
-                            indices.add(0 + offset);
-                            indices.add(1 + offset);
-                            indices.add(3 + offset);
-                            indices.add(3 + offset);
-                            indices.add(1 + offset);
-                            indices.add(2 + offset);
-                            ind += 6;
-                        }
-                        //BACK
-                        if (!voxels[x][y][z - 1].getIsVisible()){
-                            indices.add(4 + offset);
-                            indices.add(5 + offset);
-                            indices.add(7 + offset);
-                            indices.add(7 + offset);
-                            indices.add(5 + offset);
-                            indices.add(6 + offset);
-                            ind += 6;
-                        }
-
-                    }
-                }
-            }
-        }
-        float[] vertices = {
-                -0.5f,   0.5f,  0.5f,
-                -0.5f,  -0.5f,  0.5f,
-                0.5f,  -0.5f,  0.5f,
-                0.5f,   0.5f,  0.5f,
-                -0.5f,   0.5f, -0.5f,
-                -0.5f,  -0.5f, -0.5f,
-                0.5f,  -0.5f, -0.5f,
-                0.5f,   0.5f, -0.5f,
-        };
-        float[] colours = new float[]{
-                0.5f, 0.0f, 0.0f,
-                0.0f, 0.5f, 0.5f,
-                0.5f, 0.0f, 0.0f,
-                0.0f, 0.5f, 0.5f,
-                0.5f, 0.0f, 0.0f,
-                0.0f, 0.5f, 0.0f,
-                0.0f, 0.0f, 0.5f,
-                0.0f, 0.5f, 0.5f,
-        };
-        int[] indices = new int[]{
-                // Front face
-                0, 1, 3, 3, 1, 2,
-                // Top Face
-                0, 4, 3, 3, 4, 7,
-                // Right face
-                3, 2, 7, 7, 2, 6,
-                // Left face
-                0, 1, 4, 4, 1, 5,
-                // Bottom face
-                1, 5, 2, 2, 5, 6,
-                // Back face
-                4, 5, 7, 7, 5, 6
-        };
-
-        mesh = new Mesh(vertices, colours, indices);
-        needsUpdate = false;
-    }*/
-
     @Override
     public void cleanup() {
         mesh.cleanup();
@@ -200,4 +87,23 @@ public class Chunk extends Renderable {
     public Vector3i getPosition() {
         return position;
     }
+
+    //XXXX0000
+    public final int getSunlighting(int x, int y, int z){
+        return (lightmap[x][y][z] >> 4) & 0xF;
+    }
+
+    //0000XXXX
+    public final int getArtificialLight(int x, int y, int z){
+        return (lightmap[x][y][z] & 0xF);
+    }
+
+    public final void setSunlight(int x, int y, int z, int value){
+        lightmap[x][y][z] = (byte) ((lightmap[x][y][z] & 0xF) | value << 4);
+    }
+
+    public final void setArtificialLight(int x, int y, int z, int value){
+        lightmap[x][y][z] = (byte) ((lightmap[x][y][z] & 0xF0) | value);
+    }
+
 }

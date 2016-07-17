@@ -1,6 +1,6 @@
 package ak.physSim.main;
 
-import ak.physSim.Light;
+import ak.physSim.render.light.AreaLight;
 import ak.physSim.entity.Player;
 import ak.physSim.render.Renderer;
 import ak.physSim.util.Logger;
@@ -8,7 +8,6 @@ import ak.physSim.util.ShaderProgram;
 import ak.physSim.util.Utils;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
-import com.sun.xml.internal.ws.api.server.AbstractInstanceResolver;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.Version;
@@ -29,7 +28,7 @@ public class Main {
 
     private int HEIGHT = 1200,
                 WIDTH  = 1600;
-    Light light;
+    AreaLight areaLight;
     //Projection Matrix stuff;
     private static final float fov  = (float) (Math.PI/4); //60 degrees
     private static final float zNear = 0.01f;
@@ -151,7 +150,7 @@ public class Main {
     private void initObjects(){
         player = new Player(new Vector3f(-4, 30, 0), (float) Math.PI, (float) (Math.PI/2));
         map = new WorldManager(player, /*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
-        light = new Light(player.getPosition());
+        areaLight = new AreaLight(player.getPosition());
     }
     private void loop() throws Exception {
         glfwSetCursorPosCallback(window, new GLFWCursorPosCallback() {
@@ -170,12 +169,12 @@ public class Main {
                 if (button == 0)
                     map.addVoxel((int) player.getPosition().x, (int) player.getPosition().y, (int) player.getPosition().z, new Voxel(VoxelType.AIR));
                 if (button == 2) {
-                    if (light != null)
-                        map.addVoxel(light.getPosition(), new Voxel(VoxelType.AIR));
-                    light = new Light(player.getPosition());
-                    map.addVoxel(light.getPosition(), new Voxel(VoxelType.LIGHT));
+                    if (areaLight != null)
+                        map.addVoxel(areaLight.getPosition(), new Voxel(VoxelType.AIR));
+                    areaLight = new AreaLight(player.getPosition());
+                    map.addVoxel(areaLight.getPosition(), new Voxel(VoxelType.LIGHT));
                     shaderProgram.bind();
-                    shaderProgram.setUniform("light.position", light.getPosition());
+                    shaderProgram.setUniform("light.position", areaLight.getPosition());
                     shaderProgram.unbind();
                 }
             }
