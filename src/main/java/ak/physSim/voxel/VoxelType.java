@@ -11,7 +11,6 @@ public enum  VoxelType {
     DARK_STONE (0.8f, 0.8f, 0.8f),
     GRASS (0, 0.4f, 0),
     AIR(0, 0, 0),
-    CLOUD(1, 1, 1),
     LIGHT(1,1,0);
 
     private final float[] colour = new float[3];

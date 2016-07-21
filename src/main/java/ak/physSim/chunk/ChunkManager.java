@@ -33,7 +33,8 @@ public class ChunkManager {
     public void addChunk(Point3d point, Chunk chunk){
         if (!chunkMap.containsKey(point))
             chunkMap.put(point, chunk);
-        needsMeshUpdate.add(point);
+        setNeedsMeshUpdate(point);
+        Logger.log(Logger.LogLevel.DEBUG, "added chunk " + point.toString());
     }
 
     public void setNeedsMeshUpdate(Point3d position){
@@ -74,8 +75,10 @@ public class ChunkManager {
     }
 
     public ArrayList<Renderable> getChunks(){
-        if(needsMeshUpdate.size() > 0)
+        if(needsMeshUpdate.size() > 0){
+            System.out.println("computing");
             comupteAll();
+        }
         return new ArrayList<>(chunkMap.values());
     }
 
@@ -122,5 +125,9 @@ public class ChunkManager {
 
     private int getChunkPos(int pos) {
         return (int) Math.floor(pos/(double) CHUNK_SIZE);
+    }
+
+    public void addChunk(int x, int y, int z, Chunk chunk) {
+        addChunk(new Point3d(x, y, z), chunk);
     }
 }

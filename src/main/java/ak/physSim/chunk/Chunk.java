@@ -14,6 +14,8 @@ import org.lwjgl.opengl.GLCapabilities;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import static ak.physSim.util.Reference.CHUNK_SIZE;
 import static org.lwjgl.opengl.GL11.*;
@@ -30,6 +32,8 @@ public class Chunk extends Renderable {
 
     //Store lightmap data
     public byte[][][] lightmap = new byte[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+
+    Queue queue = new LinkedList<>();
 
     Mesh mesh;
 
@@ -58,7 +62,7 @@ public class Chunk extends Renderable {
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);
 
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 //        Logger.log(Logger.LogLevel.DEBUG, "Rendering at " + String.format("{%.1f,%.1f,%.1f}", position.x, position.y, position.z));
         glDrawElements(GL_TRIANGLES, mesh.getVertCount(), GL_UNSIGNED_INT, 0);
 
@@ -95,6 +99,7 @@ public class Chunk extends Renderable {
 
     //0000XXXX
     public final int getArtificialLight(int x, int y, int z){
+
         return (lightmap[x][y][z] & 0xF);
     }
 
@@ -106,4 +111,7 @@ public class Chunk extends Renderable {
         lightmap[x][y][z] = (byte) ((lightmap[x][y][z] & 0xF0) | value);
     }
 
+    class LightNode {
+        short index;
+    }
 }

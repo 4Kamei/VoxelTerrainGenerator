@@ -47,6 +47,7 @@ public class Renderer {
         renderables.stream().filter(renderable -> renderable instanceof Chunk).forEach(renderable -> {
             Chunk chunk = (Chunk) renderable;
             Vector3i pos = chunk.getPosition();
+
             if (intersection.testAab(pos.x, pos.y, pos.z, pos.x + 16, pos.y + 16, pos.z + 16)) {
                 program.setUniform("model", renderable.getTransformation().getTranslationMatrix());
                 chunk.render();

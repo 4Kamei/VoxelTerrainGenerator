@@ -1,8 +1,11 @@
 package ak.physSim.main;
 
+import ak.physSim.chunk.Chunk;
+import ak.physSim.io.WorldLoader;
 import ak.physSim.chunk.ChunkManager;
 import ak.physSim.entity.Player;
 import ak.physSim.render.Renderable;
+import ak.physSim.util.Point3d;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
 import com.flowpowered.noise.Noise;
@@ -10,6 +13,7 @@ import com.flowpowered.noise.NoiseQuality;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GLCapabilities;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -20,11 +24,24 @@ public class WorldManager {
     private Player player;
     private GLCapabilities capabilities;
 
-    public WorldManager(Player player, GLCapabilities capabilities){
+    public WorldManager(Player player, GLCapabilities capabilities) {
         this.player = player;
         this.capabilities = capabilities;
 
         generateLandscape();
+    }
+
+    private void loadWorld() throws Exception {
+        manager = new ChunkManager(capabilities);
+        WorldLoader loader = new WorldLoader(new File("save.sg"));
+        for (int x = 0; x < 10; x++) {
+            for (int y = 0; y < 10; y++) {
+                for (int z = 0; z < 10; z++) {
+                    manager.addChunk(x, y, z, loader.loadChunk(x, y, z));
+                }
+            }
+        }
+        manager.comupteAll();
     }
 
     private void generateLines(){
@@ -71,7 +88,7 @@ public class WorldManager {
         manager = new ChunkManager(capabilities);
         for (int x = -100; x < 100; x++) {
             for (int z = -100; z < 100; z++) {
-                int height = 5 + (int) ((Noise.gradientCoherentNoise3D(x/40f, 0, z/40f, 23, NoiseQuality.BEST) + 1)/2 * 40);
+                int height = 5 + (int) ((Noise.gradientCoherentNoise3D(x/160f, 0, z/160f, 23, NoiseQuality.BEST) + 1)/2 * 160);
                 for (int y = 0; y < height; y++) {
                     if (y < 10)
                         addVoxel(x, y, z, new Voxel(VoxelType.DARK_STONE));
@@ -82,8 +99,35 @@ public class WorldManager {
 
             }
         }
-
         manager.comupteAll();
+        player.setPosition(0, 7 + (int) ((Noise.gradientCoherentNoise3D(0, 0, 0, 23, NoiseQuality.BEST) + 1)/2 * 160), 0);
+    }
+
+    private void generateBlobs(){
+        manager = new ChunkManager(capabilities);
+        int rad = 10;
+        for (int x = -rad; x < rad; x++) {
+            for (int y = 0; y < rad*2; y++) {
+                for (int z = -rad; z < rad; z++) {
+                    manager.addChunk(new Point3d(x, y, z), generateBlobChunk(x, y, z));
+                }
+            }
+        }
+        manager.comupteAll();
+    }
+
+    private Chunk generateBlobChunk(int x, int y, int z) {
+        Chunk c = new Chunk(x, y, z);
+        c.setup(capabilities);
+        for (int vX = 0; vX < 16; vX++) {
+            for (int vY = 0; vY < 16; vY++) {
+                for (int vZ = 0; vZ < 16; vZ++) {
+                    if ((Noise.gradientCoherentNoise3D((16 * x + vX)/16f, (16 * y + vY)/16f, (16 * z + vZ)/16f, 43, NoiseQuality.BEST) + 1)/2 > 0.8)
+                        c.setVoxel(vX, vY, vZ, new Voxel(VoxelType.STONE));
+                }
+            }
+        }
+        return c;
     }
 
     public void addVoxel(int x, int y, int z, Voxel voxel){
@@ -100,5 +144,22 @@ public class WorldManager {
 
     public void addVoxel(Vector3f position, Voxel voxel) {
         addVoxel((int) position.x, (int) position.y, (int) position.z, voxel);
+    }
+
+    public void generateChunk(float x1, float y1, float z1) {
+        int x = (int) x1;
+        int y = (int) y1;
+        int z = (int) z1;
+        Chunk c = new Chunk(x, y, z);
+        c.setup(capabilities);
+        for (int vX = 0; vX < 16; vX++) {
+            for (int vY = 0; vY < 16; vY++) {
+                for (int vZ = 0; vZ < 16; vZ++) {
+                    if ((Noise.gradientCoherentNoise3D((16 * x + vX)/16f, (16 * y + vY)/16f, (16 * z + vZ)/16f, 43, NoiseQuality.BEST) + 1)/2 > 0.8)
+                        c.setVoxel(vX, vY, vZ, new Voxel(VoxelType.STONE));
+                }
+            }
+        }
+        manager.addChunk(x, y, z, c);
     }
 }

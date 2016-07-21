@@ -16,5 +16,6 @@
     <orderEntry type="library" name="Maven: org.lwjgl:lwjgl-platform:natives-windows:3.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.joml:joml:1.8.0" level="project" />
     <orderEntry type="library" name="Maven: com.flowpowered:flow-noise:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:19.0" level="project" />
   </component>
 </module>

@@ -4,6 +4,7 @@ import ak.physSim.render.light.AreaLight;
 import ak.physSim.entity.Player;
 import ak.physSim.render.Renderer;
 import ak.physSim.util.Logger;
+import ak.physSim.util.Reference;
 import ak.physSim.util.ShaderProgram;
 import ak.physSim.util.Utils;
 import ak.physSim.voxel.Voxel;
@@ -11,10 +12,7 @@ import ak.physSim.voxel.VoxelType;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.Version;
-import org.lwjgl.glfw.GLFWCursorPosCallback;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWMouseButtonCallback;
-import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -26,8 +24,8 @@ public class Main {
     // The window handle
     private long window;
 
-    private int HEIGHT = 1200,
-                WIDTH  = 1600;
+    private int HEIGHT = 600,
+                WIDTH  = 800;
     AreaLight areaLight;
     //Projection Matrix stuff;
     private static final float fov  = (float) (Math.PI/4); //60 degrees
@@ -139,7 +137,7 @@ public class Main {
         shaderProgram.createLightUniform("light");
 
         shaderProgram.bind();
-        shaderProgram.setUniform("light.colIntensities", new Vector3f(1));
+        shaderProgram.setUniform("light.colIntensities", new Vector3f(1,1,1));
         shaderProgram.unbind();
         projectionMatrix = new Matrix4f().perspective(fov, aspectRatio, zNear, zFar);
 
@@ -148,7 +146,7 @@ public class Main {
     }
 
     private void initObjects(){
-        player = new Player(new Vector3f(-4, 30, 0), (float) Math.PI, (float) (Math.PI/2));
+        player = new Player(new Vector3f(0, 0, 0), (float) Math.PI, (float) (Math.PI/2));
         map = new WorldManager(player, /*LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
         areaLight = new AreaLight(player.getPosition());
     }
@@ -165,14 +163,11 @@ public class Main {
             public void invoke(long l, int button, int pressing, int i2) {
                 System.out.println("l = [" + l + "], button = [" + button + "], i1 = [" + pressing + "], i2 = [" + i2 + "]");
                 if (button == 1)
-                    map.addVoxel((int) player.getPosition().x, (int) player.getPosition().y, (int) player.getPosition().z, new Voxel(VoxelType.GRASS));
+                    map.generateChunk(player.getPosition().x / Reference.CHUNK_SIZE, player.getPosition().y / Reference.CHUNK_SIZE, player.getPosition().z / Reference.CHUNK_SIZE);
                 if (button == 0)
-                    map.addVoxel((int) player.getPosition().x, (int) player.getPosition().y, (int) player.getPosition().z, new Voxel(VoxelType.AIR));
+                        map.addVoxel((int) player.getPosition().x, (int) player.getPosition().y, (int) player.getPosition().z, new Voxel(VoxelType.AIR));
                 if (button == 2) {
-                    if (areaLight != null)
-                        map.addVoxel(areaLight.getPosition(), new Voxel(VoxelType.AIR));
                     areaLight = new AreaLight(player.getPosition());
-                    map.addVoxel(areaLight.getPosition(), new Voxel(VoxelType.LIGHT));
                     shaderProgram.bind();
                     shaderProgram.setUniform("light.position", areaLight.getPosition());
                     shaderProgram.unbind();
@@ -180,6 +175,15 @@ public class Main {
             }
         });
 
+        glfwSetScrollCallback(window, new GLFWScrollCallback() {
+            @Override
+            public void invoke(long window, double v, double dir) {
+                areaLight.addPower(dir);
+                shaderProgram.bind();
+                shaderProgram.setUniform("light.power", areaLight.power());
+                shaderProgram.unbind();
+            }
+        });
         while ( !glfwWindowShouldClose(window) ) {
             update();
             renderer.addRenderables(map.getObjectsToRender());
@@ -198,6 +202,7 @@ public class Main {
                 .rotateX(player.getPitch())
                 .rotateY(player.getAzimuth());
         viewMatrix.translate(player.getTransform());
+        shaderProgram.setUniform("light.position", player.getPosition());
         try {
         } catch (Exception e) {
             e.printStackTrace();

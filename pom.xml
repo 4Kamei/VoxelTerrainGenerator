@@ -13,6 +13,7 @@
         <natives.version>0.0.6</natives.version>
         <lwjgl.version>3.0.0</lwjgl.version>
         <joml.version>1.8.0</joml.version>
+        <guava.version>19.0</guava.version>
     </properties>
 
     <repositories>
@@ -47,6 +48,11 @@
             <groupId>com.flowpowered</groupId>
             <artifactId>flow-noise</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
     </dependencies>
 

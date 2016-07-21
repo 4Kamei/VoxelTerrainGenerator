@@ -34,6 +34,7 @@ public class ShaderProgram {
     public void createLightUniform(String uniformName) throws Exception {
         createUniform(uniformName + ".colIntensities");
         createUniform(uniformName + ".position");
+        createUniform(uniformName + ".power");
     }
 
     public void createUniform(String uniformName) {
@@ -55,6 +56,13 @@ public class ShaderProgram {
             Logger.log(Logger.LogLevel.ERROR, "Uniform name not found " + uniformName);
     }
 
+    public void setUniform(String uniformName, float value) {
+        if (uniforms.containsKey(uniformName)) {
+            glUniform1f(uniforms.get(uniformName), value);
+        } else {
+            Logger.log(Logger.LogLevel.ERROR, "Uniform name not found " + uniformName);
+        }
+    }
     public void setUniform(String uniformName, Vector3f value) {
         if (uniforms.containsKey(uniformName)) {
             glUniform3f(uniforms.get(uniformName), value.x, value.y, value.z);

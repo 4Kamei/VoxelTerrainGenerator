@@ -130,4 +130,8 @@ public class Player {
         activeUpdated = true;
         return active;
     }
+
+    public void setPosition(int x, int y, int z) {
+        this.position = new Vector3f(x, y, z);
+    }
 }
