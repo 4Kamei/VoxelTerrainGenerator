@@ -1,7 +1,6 @@
 package ak.physSim.main;
 
 import ak.physSim.chunk.Chunk;
-import ak.physSim.io.WorldLoader;
 import ak.physSim.chunk.ChunkManager;
 import ak.physSim.entity.Player;
 import ak.physSim.render.Renderable;
@@ -29,19 +28,6 @@ public class WorldManager {
         this.capabilities = capabilities;
 
         generateLandscape();
-    }
-
-    private void loadWorld() throws Exception {
-        manager = new ChunkManager(capabilities);
-        WorldLoader loader = new WorldLoader(new File("save.sg"));
-        for (int x = 0; x < 10; x++) {
-            for (int y = 0; y < 10; y++) {
-                for (int z = 0; z < 10; z++) {
-                    manager.addChunk(x, y, z, loader.loadChunk(x, y, z));
-                }
-            }
-        }
-        manager.comupteAll();
     }
 
     private void generateLines(){

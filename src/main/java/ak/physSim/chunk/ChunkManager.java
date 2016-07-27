@@ -6,6 +6,7 @@ import ak.physSim.util.Point3d;
 import ak.physSim.util.Reference;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
+import com.sun.deploy.util.SessionState;
 import org.joml.FrustumIntersection;
 import org.joml.FrustumRayBuilder;
 import org.joml.Vector3f;
@@ -83,13 +84,15 @@ public class ChunkManager {
     }
 
 
-
     public void cleanup() {
         for (Chunk chunk : chunkMap.values()) {
             chunk.cleanup();
         }
     }
 
+    public void calculateLightingUpdates(){
+        
+    }
 
     public void addVoxel(int x, int y, int z, Voxel voxel) {
         Point3d chunkPoint =  new Point3d(getChunkPos(x), getChunkPos(y), getChunkPos(z));

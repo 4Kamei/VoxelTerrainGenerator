@@ -1,11 +1,13 @@
 package ak.physSim.chunk;
 
+import ak.physSim.LightNode;
 import ak.physSim.render.meshes.Mesh;
 import ak.physSim.render.Renderable;
 import ak.physSim.render.Transformation;
 import ak.physSim.util.Logger;
 import ak.physSim.util.Reference;
 import ak.physSim.voxel.Voxel;
+import ak.physSim.voxel.VoxelType;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.lwjgl.opengl.GL;
@@ -18,6 +20,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import static ak.physSim.util.Reference.CHUNK_SIZE;
+import static ak.physSim.util.Reference.CHUNK_SIZE_POW2;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -31,9 +34,11 @@ public class Chunk extends Renderable {
     private Voxel[][][] voxels = new Voxel[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
 
     //Store lightmap data
-    public byte[][][] lightmap = new byte[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+    //Data stored like this
+    //RRRR GGGG BBBB SSSS
+    public short[] lightmap = new byte[CHUNK_SIZE*CHUNK_SIZE*CHUNK_SIZE]; //x + y*size + z*size^2
 
-    Queue queue = new LinkedList<>();
+    Queue<LightNode> lightPropagation;
 
     Mesh mesh;
 
@@ -42,6 +47,7 @@ public class Chunk extends Renderable {
 
     public Chunk(int x, int y, int z) {
         this.position = new Vector3i(x, y, z).mul(CHUNK_SIZE);
+        lightPropagation = new LinkedList<>();
     }
 
     public Voxel[][][] getVoxels() {
@@ -91,27 +97,54 @@ public class Chunk extends Renderable {
     public Vector3i getPosition() {
         return position;
     }
-
-    //XXXX0000
-    public final int getSunlighting(int x, int y, int z){
-        return (lightmap[x][y][z] >> 4) & 0xF;
+    //0000 0000 0000 SSSS
+    public int getSunlighting(int x, int y, int z){
+        return lightmap[getIndex(x, y, z)] & 0xF;
     }
 
-    //0000XXXX
-    public final int getArtificialLight(int x, int y, int z){
-
-        return (lightmap[x][y][z] & 0xF);
+    public void setSunlight(int x, int y, int z, int value){
+        int index = getIndex(x, y, z);
+        lightmap[index] = (short) ((lightmap[index] & 0xfff0) | (value & 0xf));
     }
 
-    public final void setSunlight(int x, int y, int z, int value){
-        lightmap[x][y][z] = (byte) ((lightmap[x][y][z] & 0xF) | value << 4);
+    //0000 0000 XXXX 0000
+    public void setArtificialRed(int x, int y, int z, int value){
+        int index = getIndex(x, y, z);
+        lightmap[index] = (short) ((lightmap[index] * 0xf0) | (value & 0xf) << 4);
     }
 
-    public final void setArtificialLight(int x, int y, int z, int value){
-        lightmap[x][y][z] = (byte) ((lightmap[x][y][z] & 0xF0) | value);
+    public int getArtificialRed(int x, int y, int z){
+        return lightmap[getIndex(x, y, z)] >> 4 & 0xf;
     }
 
-    class LightNode {
-        short index;
+    //0000 XXXX 0000 0000
+    public void setArtificialGreen(int x, int y, int z, int value){
+        int index = getIndex(x, y, z);
+        lightmap[index] = (short) ((lightmap[index] * 0xf00) | (value & 0xf) << 8);
     }
+
+    public int getArtificialGreen(int x, int y, int z){
+        return lightmap[getIndex(x, y, z)] >> 8 & 0xf;
+    }
+
+    //XXXX 0000 0000 0000
+    public void setArtificialBlue(int x, int y, int z, int value){
+        int index = getIndex(x, y, z);
+        lightmap[index] = (short) ((lightmap[index] * 0xf000) | (value & 0xf) << 12);
+    }
+
+    public int getArtificialBlue(int x, int y, int z){
+        return lightmap[getIndex(x, y, z)] >> 12 & 0xf;
+    }
+
+    private int getIndex(int x, int y, int z){
+        int val = z << CHUNK_SIZE_POW2;
+        val = (val | y) << CHUNK_SIZE_POW2;
+        return val | x;
+    }
+
+    public void addToLightPropagationQueue(LightNode node){
+        lightPropagation.add(node); //TODO: LIGHT PROP ALGORITH IN CHUNK MANAGER
+    }
+
 }
