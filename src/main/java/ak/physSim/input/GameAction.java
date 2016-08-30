@@ -5,10 +5,10 @@ package ak.physSim.input;
  */
 public enum GameAction {
     PLAYER_ENTER,
-    PLAYER_UP_RELEASE,
-    PLAYER_UP_PRESS,
-    PLAYER_DOWN_RELEASE,
-    PLAYER_DOWN_PRESS,
-    GLFW_EXIT;
-
+    PLAYER_UP,
+    PLAYER_DOWN,
+    PLAYER_LEFT,
+    PLAYER_RIGHT,
+    PLAYER_PRINT_DEBUG,
+    GLFW_EXIT
 }
