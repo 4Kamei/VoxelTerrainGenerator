@@ -6,6 +6,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GLUtil;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +67,22 @@ public class ShaderProgram {
     public void setUniform(String uniformName, Vector3f value) {
         if (uniforms.containsKey(uniformName)) {
             glUniform3f(uniforms.get(uniformName), value.x, value.y, value.z);
+        } else
+            Logger.log(Logger.LogLevel.ERROR, "Uniform name not found " + uniformName);
+    }
+
+    public void setUniform(String uniformName, int[][][] values) {
+        int lenSq = values.length * values.length;
+        int[] newVal = new int[lenSq * values.length];
+        for (int x = 0; x < values.length; x++) {
+            for (int y = 0; y < values[x].length; y++) {
+                for (int z = 0; z < values[x][y].length; z++) {
+                    newVal[x + y*values.length + z * lenSq] = values[x][y][z];
+                }
+            }
+        }
+        if (uniforms.containsKey(uniformName)) {
+            glUniform1iv(uniforms.get(uniformName), newVal);
         } else
             Logger.log(Logger.LogLevel.ERROR, "Uniform name not found " + uniformName);
     }

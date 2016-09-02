@@ -1,6 +1,5 @@
 package ak.physSim.render.meshes;
 
-import ak.physSim.render.meshes.Mesh;
 import ak.physSim.util.Logger;
 import org.joml.Vector3i;
 
@@ -12,13 +11,13 @@ import java.util.HashMap;
  */
 public class DirectionalMesh {
 
-    private HashMap<Side, Mesh> meshLists;
+    private HashMap<Side, FullMesh> meshLists;
 
     public DirectionalMesh () {
         meshLists = new HashMap<>();
     }
 
-    public void addMesh (Side normal, Mesh mesh) {
+    public void addMesh (Side normal, FullMesh mesh) {
         if (meshLists.containsKey(normal)){
             meshLists.remove(normal);
             Logger.log(Logger.LogLevel.ERROR, "MESH ALREADY CONTAINS FACE " + normal);
@@ -31,7 +30,7 @@ public class DirectionalMesh {
         FaceMesh[] meshes = new FaceMesh[3];
 
         meshes[0] = new FaceMesh();
-        Mesh mesh;
+        FullMesh mesh;
 
         if (axisVector.x == -1){
             mesh = meshLists.get(Side.X_PLUS);
@@ -64,8 +63,8 @@ public class DirectionalMesh {
 
     public FaceMesh[] getAllMeshes(){
         FaceMesh[] meshes = new FaceMesh[6];
-        Collection<Mesh> values = meshLists.values();
-        Mesh[] mesh = values.toArray(new Mesh[values.size()]);
+        Collection<FullMesh> values = meshLists.values();
+        FullMesh[] mesh = values.toArray(new FullMesh[values.size()]);
         for (int i = 0; i < meshes.length; i++) {
             meshes[i] = new FaceMesh();
             meshes[i].vaoID = mesh[i].getVaoId();
@@ -75,7 +74,7 @@ public class DirectionalMesh {
     }
 
     public void cleanup() {
-        meshLists.values().forEach(Mesh::cleanup);
+        meshLists.values().forEach(FullMesh::cleanup);
     }
 
 

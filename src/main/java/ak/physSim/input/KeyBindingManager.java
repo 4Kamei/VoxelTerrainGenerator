@@ -28,4 +28,8 @@ public class KeyBindingManager {
         keyMap.put(28, GameAction.PLAYER_ENTER);
         keyMap.put(1, GameAction.GLFW_EXIT);
     }
+
+    public void bind(int scancode, GameAction action) {
+        keyMap.put(scancode, action);
+    }
 }

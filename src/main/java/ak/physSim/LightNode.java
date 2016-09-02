@@ -1,25 +1,26 @@
 package ak.physSim;
 
-import static ak.physSim.util.Reference.CHUNK_SIZE_POW2;
+import ak.physSim.chunk.Chunk;
 
 /**
  * Created by Aleksander on 26/07/2016.
  */
 public class LightNode {
-    int index;
-    short lightIntensity;
 
-    public LightNode(int x, int y, int z, int r, int g, int b) {
-        int val = z << CHUNK_SIZE_POW2;
-        val = (val | y) << CHUNK_SIZE_POW2;
-        index =  val | x;
-        this.lightIntensity = (short) (b << 8 | g << 4 | r);
+    public final Chunk chunk;
+    public final byte x;
+    public final byte y;
+    public final byte z;
+
+    public final byte level;
+
+    public LightNode(int x, int y, int z, byte level, Chunk c) {
+        this.chunk = c;
+        this.x = (byte) x;
+        this.y = (byte) y;
+        this.z = (byte) z;
+        this.level = level;
     }
 
-    public LightNode(int x, int y, int z, short intensity){
-        int val = z << CHUNK_SIZE_POW2;
-        val = (val | y) << CHUNK_SIZE_POW2;
-        index =  val | x;
-        lightIntensity = intensity;
-    }
+
 }

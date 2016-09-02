@@ -1,5 +1,6 @@
 package ak.physSim.entity;
 
+import ak.physSim.input.GameAction;
 import ak.physSim.util.Logger;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -27,19 +28,26 @@ public class Player {
         caluclateLookVector();
     }
 
-    public void setKeys(int key, int action){
-        up = down = left = right = false;
-        if (key == GLFW.GLFW_KEY_UP || key == GLFW.GLFW_KEY_W)
-            up = (action != 0);
-        if (key == GLFW.GLFW_KEY_DOWN|| key == GLFW.GLFW_KEY_S)
-            down = (action != 0);
-        if (key == GLFW.GLFW_KEY_LEFT|| key == GLFW.GLFW_KEY_A)
-            left = (action != 0);
-        if (key == GLFW.GLFW_KEY_RIGHT|| key == GLFW.GLFW_KEY_D)
-            right = (action != 0);
-        if (key == GLFW.GLFW_KEY_ENTER){
-            active = (action != 0 ? !active : active);
-            activeUpdated = true;
+
+    public void setKeysMovement(GameAction action, boolean statePressed) {
+        if (action == GameAction.PLAYER_LEFT) {
+            left = statePressed;
+        }
+        if (action == GameAction.PLAYER_RIGHT) {
+            right = statePressed;
+        }
+        if (action == GameAction.PLAYER_UP) {
+            up = statePressed;
+        }
+        if (action == GameAction.PLAYER_DOWN) {
+            down = statePressed;
+        }
+    }
+
+    public void setKeysOther(GameAction action, boolean statePressed) {
+        switch(action) {
+            case PLAYER_ENTER : active = (statePressed ? !active : active);
+                break;
         }
     }
 
@@ -78,8 +86,13 @@ public class Player {
     }
 
     private void addLook(float azimuth, float pitch){
-        this.azimuth += azimuth;
         this.pitch += pitch;
+        if (this.pitch + pitch > Math.PI) {
+            this.pitch = (float) Math.PI;
+        } if (this.pitch + pitch < 0){
+            this.pitch = 0;
+        }
+        this.azimuth += azimuth;
         caluclateLookVector();
     }
     private void setLook(double azimuth, double pitch){

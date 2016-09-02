@@ -1,33 +1,26 @@
 package ak.physSim.chunk;
 
-import ak.physSim.render.meshes.Mesh;
+import ak.physSim.render.meshes.FullMesh;
 import ak.physSim.util.Logger;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import static ak.physSim.util.Reference.CHUNK_SIZE;
 
-/*
-* After hours of frustration at being unable to code it myself, I have taken code from
-* https://github.com/roboleary/GreedyMesh/blob/master/src/mygame/Main.java
-* and modified it a bit.
-*
-*
-* */
+import static ak.physSim.util.Reference.Z_MINUS;
+import static ak.physSim.util.Reference.Z_PLUS;
+import static ak.physSim.util.Reference.X_PLUS;
+import static ak.physSim.util.Reference.X_MINUS;
+import static ak.physSim.util.Reference.Y_PLUS;
+import static ak.physSim.util.Reference.Y_MINUS;
+
 public class ChunkMesher{
 
-    private static final int Z_MINUS = 0;
-    private static final int Z_PLUS = 1;
-    private static final int X_PLUS = 2;
-    private static final int X_MINUS = 3;
-    private static final int Y_PLUS = 4;
-    private static final int Y_MINUS = 5;
 
     private ArrayList<Float> verticesBuffer;
     private ArrayList<Float> colourBuffer;
@@ -36,7 +29,7 @@ public class ChunkMesher{
 
     private int indexOffset = 0;
     private Chunk chunk;
-    private Mesh mesh;
+    private FullMesh mesh;
     private ChunkManager manager;
 
     public ChunkMesher(Chunk chunk, ChunkManager manager) {
@@ -90,10 +83,10 @@ public class ChunkMesher{
         }
         Logger.log(Logger.LogLevel.DEBUG, "Length of normals array " + indices.length);
 
-        mesh = new Mesh(vert, colour, indices, normals);
+        mesh = new FullMesh(vert, colour, indices, normals);
     }
 
-    public Mesh getMesh() throws Exception {
+    public FullMesh getMesh() throws Exception {
         if (mesh == null)
             throw new Exception("Mesh not ready exception");
         return mesh;
@@ -154,6 +147,11 @@ public class ChunkMesher{
         return voxelFace;
     }
 
+
+    /*
+    * After hours of frustration at being unable to code it myself, I have taken code from
+    * https://github.com/roboleary/GreedyMesh/blob/master/src/mygame/Main.java
+    */
     private void createGreedyMesh() {
         /*
          * These are just working variables for the algorithm - almost all taken
@@ -400,6 +398,7 @@ public class ChunkMesher{
             colourBuffer.add(col[1]);
             colourBuffer.add(col[2]);
         }
+        //TODO: Maybe change so that if vertex exists, use existing index ?
         if (backFace) {
             indicesBuffer.add(0 + indexOffset);
             indicesBuffer.add(1 + indexOffset);

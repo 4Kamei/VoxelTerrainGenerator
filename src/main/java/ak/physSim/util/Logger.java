@@ -28,9 +28,12 @@ public class Logger {
     public static void toggleLog(){
         printlog = !printlog;
     }
-    public static void log(LogLevel level, String message){
-        Date now = new Date();
-        String s = String.format("[%tD %tT][" + name + "][" + level.name + "] : " + message, now, now);
-        System.out.println(s);
+    public static void log(LogLevel level, String mess){
+        String[] messages = mess.split("\n");
+        for (String message : messages) {
+            Date now = new Date();
+            String s = String.format("[%tD %tT][" + name + "][" + level.name + "] : " + message, now, now);
+            System.out.println(s);
+        }
     }
 }

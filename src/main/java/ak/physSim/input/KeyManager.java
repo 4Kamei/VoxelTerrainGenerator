@@ -12,30 +12,53 @@ import java.util.HashMap;
  */
 public class KeyManager extends GLFWKeyCallback {
 
-    private HashMap<GameAction, KeyAction> actions;
-    private KeyBindingManager bindings;
-    public KeyManager() {
+    private boolean consoleOpen;
+
+    private Console console;
+
+    private HashMap<GameAction, KeyAction> action;
+
+    private KeyBindingManager defaultBindings;
+    private KeyBindingManager consoleBindings;
+
+    public KeyManager(Console console) {
         super();
-        actions = new HashMap<>();
-        bindings = new KeyBindingManager(true);
+        this.console = console;
+        action = new HashMap<>();
+        defaultBindings = new KeyBindingManager(true);
+        consoleBindings = new KeyBindingManager(false);
+        consoleBindings.bind(28, GameAction.CONSOLE_CLOSE);
+        defaultBindings.bind(20, GameAction.OPEN_CONSOLE);
+        registerAction(GameAction.OPEN_CONSOLE, up -> {
+            consoleOpen = true;
+        } );
     }
 
     @Override
     public void invoke(long window, int key, int scancode, int action, int mods) {
-
-        doAction(scancode, action);
-        System.out.println(action + " : " + mods);
+        if (consoleOpen && action == 1) {
+            if (consoleBindings.getKey(scancode) == GameAction.CONSOLE_CLOSE) {
+                console.sendCommand();
+                consoleOpen = false;
+                return;
+            }
+            console.parse(scancode, key, mods == 1);
+            return;
+        } else if (!consoleOpen) {
+            doAction(scancode, action);
+        }
+        Logger.log(Logger.LogLevel.DEBUG, scancode + " : " + action + " : " + mods);
     }
 
     public void registerAction(GameAction trigger, KeyAction action) {
-        if (actions.containsKey(trigger))
-            actions.remove(trigger);
-        actions.put(trigger, action);
+        if (this.action.containsKey(trigger))
+            this.action.remove(trigger);
+        this.action.put(trigger, action);
     }
 
     public void doAction(int scanCode, int action) {
         try {
-            actions.get(bindings.getKey(scanCode)).doAction(action != 0);
+            this.action.get(defaultBindings.getKey(scanCode)).doAction(action != 0);
         } catch (Exception e) {
             Logger.log(Logger.LogLevel.ERROR, "Key " + scanCode + " not registered!");
         }

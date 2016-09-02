@@ -12,7 +12,6 @@ import com.flowpowered.noise.NoiseQuality;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GLCapabilities;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -27,7 +26,29 @@ public class WorldManager {
         this.player = player;
         this.capabilities = capabilities;
 
-        generateLandscape();
+        generatePlane();
+    }
+
+    private void generatePlane() {
+        manager = new ChunkManager(capabilities);
+        for (int x = -10; x < 10; x++) {
+            for (int z = -10; z < 10; z++) {
+                if ((Math.abs(x*z) % 8) > 0){
+                    Chunk c = new Chunk(x, 0, z);
+                    for (int cX = 0; cX < 16; cX++) {
+                        for (int cZ = 0; cZ < 16; cZ++) {
+                            for (int cY = 0; cY < 16; cY++) {
+                                c.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
+                            }
+                        }
+                    }
+                    c.setup(capabilities);
+                    manager.addChunk(new Point3d(x, 0, z), c);
+                }
+            }
+        }
+
+        manager.computeAllMeshUpdates();;
     }
 
     private void generateLines(){
@@ -39,7 +60,7 @@ public class WorldManager {
                 drawRing(0, 3*i, 0, 5 * i, 1, VoxelType.GRASS);
         }
 
-        manager.comupteAll();
+        manager.computeAllMeshUpdates();
     }
 
     private void drawRing(int x0, int y0, int z0, int radius, int height, VoxelType type){
@@ -85,7 +106,7 @@ public class WorldManager {
 
             }
         }
-        manager.comupteAll();
+        manager.computeAllMeshUpdates();
         player.setPosition(0, 7 + (int) ((Noise.gradientCoherentNoise3D(0, 0, 0, 23, NoiseQuality.BEST) + 1)/2 * 160), 0);
     }
 
@@ -99,7 +120,7 @@ public class WorldManager {
                 }
             }
         }
-        manager.comupteAll();
+        manager.computeAllMeshUpdates();
     }
 
     private Chunk generateBlobChunk(int x, int y, int z) {
@@ -148,4 +169,5 @@ public class WorldManager {
         }
         manager.addChunk(x, y, z, c);
     }
+
 }

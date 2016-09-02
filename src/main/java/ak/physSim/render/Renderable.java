@@ -13,4 +13,5 @@ public abstract class Renderable {
 
     public void cleanup() {
     }
+
 }
