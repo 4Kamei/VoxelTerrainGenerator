@@ -3,7 +3,7 @@
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec3 inColour;
 layout (location = 2) in vec3 inNormal;
-
+layout (location = 3) in int light;
 uniform mat4 projection;
 uniform mat4 model;
 uniform mat4 view;
@@ -12,7 +12,7 @@ out vec3 exColour;
 out vec3 vertexPos;
 out vec3 vertexNormal;
 out vec3 localVertPos;
-out vec3 localNormal;
+flat out vec3 localNormal;
 
 void main()
 {

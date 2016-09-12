@@ -29,7 +29,7 @@ public class Main {
     private long window;
 
     private int HEIGHT = 600,
-                WIDTH  = 800;
+            WIDTH  = 800;
     AreaLight areaLight;
     //Projection Matrix stuff;
     private static final float fov  = (float) (Math.PI/4); //60 degrees
@@ -56,7 +56,10 @@ public class Main {
 
     private Player player;
 
+    private Thread updateThread;
+    private long updateDelta;
 
+    private float add1 = 0, mult1 = 1;
     public void run() {
         Logger.log(Logger.LogLevel.ALL,"Running LWJGL Version" + Version.getVersion());
 
@@ -68,7 +71,7 @@ public class Main {
             initObjects();
             loop();
 
-                  // Free the window callbacks and destroy the window
+            // Free the window callbacks and destroy the window
 
             glfwDestroyWindow(window);
         } catch (Exception e) {
@@ -79,6 +82,7 @@ public class Main {
             glfwSetErrorCallback(null).free();
         }
     }
+
     private void init() throws Exception {
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
@@ -111,6 +115,7 @@ public class Main {
         // Enable v-sync
         glfwSwapInterval(1);
 
+
         // Make the window visible
         glfwShowWindow(window);
 
@@ -118,6 +123,7 @@ public class Main {
 
         //Create GLContext
     }
+
     private void initGL() throws Exception {
         GL.createCapabilities();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -125,7 +131,7 @@ public class Main {
 
         ShaderProgram orthoShader = new ShaderProgram();
 
-        orthoShader.createVertexShader(Utils.loadResource("res/GLSL/orthoVertex.vs"));
+        orthoShader.createVertexShader(Utils.loadResource("res/GLSL/fragment.fs"));
         orthoShader.createFragmentShader(Utils.loadResource("res/GLSL/orthoFragment.fs"));
 
         orthoShader.createUniform("projection");
@@ -145,6 +151,7 @@ public class Main {
 
         projectionShader.createLightUniform("light");
 
+
         projectionShader.bind();
         projectionShader.setUniform("light.colIntensities", new Vector3f(1, 1, 1));
         projectionShader.unbind();
@@ -157,15 +164,48 @@ public class Main {
     }
 
     private void initObjects(){
-        player = new Player(new Vector3f(0, 0, 0), (float) Math.PI, (float) (Math.PI/2));
+//        player = new Player(new Vector3f(0, 0, 0), (float) Math.PI, (float) (Math.PI/2));
+        player = new Player(new Vector3f(-21, 37, 12), (float) (Math.PI*0.5), (float) (Math.PI*0.75));
         map = new WorldManager(player, /*TODO: LOAD MAP HERE OR SOMETHING*/GL.getCapabilities());
         areaLight = new AreaLight(player.getPosition());
     }
+
     private void loop() throws Exception {
 
+        updateThread = new Thread(() -> {
+            long startT = 0;
+            float updateRate = 0, ups = 0;
+            long timeS = 0;
+            int upCnt = 0;
+            while (!glfwWindowShouldClose(window)) {
+                if (timeS == 0) {
+                    timeS = System.currentTimeMillis();
+                    upCnt = 0;
+                }
+                if (60 > updateRate) {
+                    startT = System.nanoTime();
+                    update(updateRate);
+                    upCnt++;
+                    ups = updateRate;
+                }
+
+                if (timeS + 1000 <= System.currentTimeMillis()) {
+                    System.out.println(updateDelta + " delta");
+                    System.out.println(ups + " ups");
+                    timeS = System.currentTimeMillis();
+                    upCnt = 0;
+                }
+
+                updateDelta = (System.nanoTime() - startT);
+                if (updateDelta == 0)
+                    updateDelta = 1;
+                updateRate = 1000000000f/updateDelta;
+            }
+        });
 
         KeyManager callback = new KeyManager(console);
         callback.registerAction(GameAction.GLFW_EXIT, (up) -> glfwSetWindowShouldClose(window, true));
+
         callback.registerPlayerActions(player);
 
         glfwSetKeyCallback(window, callback);
@@ -177,6 +217,7 @@ public class Main {
             }
         });
 
+        console.setManager(map);
         glfwSetMouseButtonCallback(window, new GLFWMouseButtonCallback() {
             @Override
             public void invoke(long l, int button, int pressing, int i2) {
@@ -203,8 +244,15 @@ public class Main {
                 projectionShader.unbind();
             }
         });
+        updateThread.start();
         while ( !glfwWindowShouldClose(window) ) {
-            update();
+
+            Matrix4f viewMat = new Matrix4f().identity()
+                    .rotateX(player.getPitch())
+                    .rotateY(player.getAzimuth())
+                    .translate(player.getTransform());
+            viewMatrix = new Matrix4f(viewMat);
+
             renderer.addRenderables(map.getObjectsToRender());  //Pull renderables from map and render (or don't render) them.
             renderer.render(viewMatrix);
             glfwSwapBuffers(window);
@@ -215,23 +263,13 @@ public class Main {
         Logger.log(Logger.LogLevel.ALL, "Closing");
     }
 
-    private void update() {
-        viewMatrix.identity()
-                .rotateX(player.getPitch())
-                .rotateY(player.getAzimuth());
-        viewMatrix.translate(player.getTransform());
-        projectionShader.setUniform("light.position", player.getPosition());
+    private void update(float ups) {
+        float delta = 1/ups;
         try {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        player.update(/*DELTAS*/ 16);
-        if (player.isActiveUpdated()){
-            if (player.lookActive())
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            else
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        }
+        player.update(delta);
     }
 
     public static void main(String[] args) {

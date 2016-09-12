@@ -13,7 +13,7 @@ import org.lwjgl.glfw.GLFW;
 public class Player {
     private Vector3f lookVector;
     private Vector3f position;
-    private final float speed = 0.1f;
+    private final float speed = 100f;
     private boolean up, down, left, right;
     private float azimuth, pitch;
     private float dmouseX, lmouseX;
@@ -51,7 +51,7 @@ public class Player {
         }
     }
 
-    public void update(int delta) {
+    public void update(float delta) {
         float update = delta*speed;
         if (up) {
             position = position.add(lookVector.x * update, lookVector.y * update, lookVector.z * update);

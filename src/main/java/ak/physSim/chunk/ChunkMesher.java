@@ -26,6 +26,7 @@ public class ChunkMesher{
     private ArrayList<Float> colourBuffer;
     private ArrayList<Integer> indicesBuffer;
     private ArrayList<Float> normalsBuffer;
+    private ArrayList<Integer> lightingBuffer;
 
     private int indexOffset = 0;
     private Chunk chunk;
@@ -93,17 +94,14 @@ public class ChunkMesher{
     }
 
     private class VoxelFace {
-
         public boolean transparent;
         public VoxelType type;
         public int side;
-
+        public int x, y, z;
         public boolean equals(final VoxelFace face) {
             return face.transparent == this.transparent && face.type == this.type;
         }
     }
-
-
 
     VoxelFace getVoxelFace(final int x, final int y, final int z, final int side) {
         Voxel vox = chunk.getVoxel(x, y, z);
@@ -142,11 +140,13 @@ public class ChunkMesher{
             Voxel adj = manager.getVoxel(pos.x + addX, pos.y + addY, pos.z + addZ);
             voxelFace.transparent = adj != null && !adj.getIsVisible();
             voxelFace.type = vox.getType();
+            voxelFace.x = pos.x;
+            voxelFace.y = pos.y;
+            voxelFace.z = pos.z;
         }
         voxelFace.side = side;
         return voxelFace;
     }
-
 
     /*
     * After hours of frustration at being unable to code it myself, I have taken code from
@@ -321,8 +321,6 @@ public class ChunkMesher{
                                             new Vector3f(x[0] + du[0], x[1] + du[1], x[2] + du[2]),
                                             new Vector3f(x[0] + du[0] + dv[0], x[1] + du[1] + dv[1], x[2] + du[2] + dv[2]),
                                             new Vector3f(x[0] + dv[0], x[1] + dv[1], x[2] + dv[2]),
-                                            w,
-                                            h,
                                             mask[n],
                                             backFace);
                                 }
@@ -360,17 +358,15 @@ public class ChunkMesher{
      *  TODO CHECKING DUPLICATE VERTICES AS THEY ARE THERE
      */
     private void quad(final Vector3f bottomLeft,
-              final Vector3f topLeft,
-              final Vector3f topRight,
-              final Vector3f bottomRight,
-              final int width,
-              final int height,
-              final VoxelFace voxel,
-              final boolean backFace) {
+                      final Vector3f topLeft,
+                      final Vector3f topRight,
+                      final Vector3f bottomRight,
+                      final VoxelFace voxel,
+                      final boolean backFace) {
         Vector3f[] vector3fs = new Vector3f[]{topLeft, bottomLeft, bottomRight, topRight};
         float[] col = voxel.type.getColour();
-
         Vector3f normal = new Vector3f();
+
         switch (voxel.side){
             case X_PLUS : normal = new Vector3f(1, 0, 0);
                 break;
@@ -385,6 +381,7 @@ public class ChunkMesher{
             case Z_MINUS : normal = new Vector3f(0, 0, -1);
                 break;
         }
+
         for (Vector3f vector3f : vector3fs) {
             verticesBuffer.add(vector3f.x);
             verticesBuffer.add(vector3f.y);
@@ -398,6 +395,7 @@ public class ChunkMesher{
             colourBuffer.add(col[1]);
             colourBuffer.add(col[2]);
         }
+
         //TODO: Maybe change so that if vertex exists, use existing index ?
         if (backFace) {
             indicesBuffer.add(0 + indexOffset);

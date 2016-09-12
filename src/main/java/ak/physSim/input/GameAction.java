@@ -10,5 +10,12 @@ public enum GameAction {
     PLAYER_LEFT,
     PLAYER_RIGHT,
     PLAYER_PRINT_DEBUG,
-    CONSOLE_CLOSE, OPEN_CONSOLE, GLFW_EXIT
+    CONSOLE_CLOSE,
+    OPEN_CONSOLE,
+    GLFW_EXIT,
+
+    DEBUG_1,
+    DEBUG_2,
+    DEBUG_3,
+    DEBUG_4,
 }

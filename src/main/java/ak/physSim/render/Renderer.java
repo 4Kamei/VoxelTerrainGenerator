@@ -82,27 +82,6 @@ public class Renderer {
             Logger.log(Logger.LogLevel.DEBUG, String.valueOf(((totalTime / 60) / 1000000f)));
             totalTime = 0;
         }
-
-        if (orthRender != null) {
-            orthRender.bind();
-            orthRender.setUniform("projection", orthMatrix);
-            if (console != null && console.isVisible()) {
-                renderConsole(console);
-            }
-            orthRender.unbind();
-        }
-    }
-
-    private void renderConsole(Console console) {
-        int yPos = 0;
-        for (String s : console.getText()) {
-            drawText(s, 0, yPos);
-            yPos += 20;
-        }
-    }
-
-    private void drawText(String text, int x, int y) {
-        Text.drawString(text, x, y, 1, 1);
     }
 
     public void addRenderables(ArrayList<Renderable> renderable){

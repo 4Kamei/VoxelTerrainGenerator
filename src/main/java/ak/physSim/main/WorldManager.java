@@ -18,6 +18,7 @@ import java.util.ArrayList;
  * Created by Aleksander on 23/06/2016.
  */
 public class WorldManager {
+
     private ChunkManager manager;
     private Player player;
     private GLCapabilities capabilities;
@@ -31,22 +32,17 @@ public class WorldManager {
 
     private void generatePlane() {
         manager = new ChunkManager(capabilities);
-        for (int x = -10; x < 10; x++) {
-            for (int z = -10; z < 10; z++) {
-                if ((Math.abs(x*z) % 8) > 0){
-                    Chunk c = new Chunk(x, 0, z);
-                    for (int cX = 0; cX < 16; cX++) {
-                        for (int cZ = 0; cZ < 16; cZ++) {
-                            for (int cY = 0; cY < 16; cY++) {
-                                c.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
-                            }
-                        }
-                    }
-                    c.setup(capabilities);
-                    manager.addChunk(new Point3d(x, 0, z), c);
+        Chunk c = new Chunk(0, 0, 0);
+        for (int cX = 0; cX < 16; cX++) {
+            for (int cZ = 0; cZ < 16; cZ++) {
+                for (int cY = 0; cY < 16; cY++) {
+                    c.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
                 }
             }
         }
+        manager.addChunk(0, 0, 0, c);
+        c.setup(capabilities);
+
 
         manager.computeAllMeshUpdates();;
     }
@@ -170,4 +166,7 @@ public class WorldManager {
         manager.addChunk(x, y, z, c);
     }
 
+    public void setLight(int x, int y, int z, int val) {
+        manager.setLighting(x, y, z, val);
+    }
 }

@@ -5,6 +5,7 @@ in vec3 vertexPos;
 in vec3 vertexNormal;
 in vec3 localVertPos;
 in vec3 localNormal;
+
 struct AreaLight {
                    vec3 colIntensities;
                    vec3 position;
@@ -17,7 +18,7 @@ struct DirectionalLight {
                     float power;
 };
 
-uniform int voxelLight[4096]; //TODO: pass from vertex shader instead
+uniform int voxelLight[5832]; //TODO: pass from vertex shader instead
 
 uniform AreaLight light;
 
@@ -25,15 +26,26 @@ out vec4 fragColor;
 
 void main()
 {
-    vec3 vertPos = localVertPos + localNormal;
-    int index = int(vertPos.x) + int(vertPos.y)*16+ int(vertPos.z)*256;
-    int lightIntensity = voxelLight[index];
+    vec3 pos = localVertPos + localNormal + vec3(0.5);
+    int index = int(pos.x) + int(pos.y) * 18 + int(pos.z) * 324;
+    vec3 lighting = vec3(15, 0, 0);
 
-    vec3 normal = vertexNormal;
-    vec3 surfaceToLight = light.position - vertexPos;
+    if (index < 5832) {
+        lighting = vec3(voxelLight[index]);
+    }
 
-    float brightness = light.power *  dot(normal, surfaceToLight)/ (length(normal) * length(surfaceToLight) * length(surfaceToLight));
-    brightness = clamp(brightness, 0, 1);
-    fragColor = vec4((brightness * 0.001 + 0.999/15 * lightIntensity) * light.colIntensities * exColour, 1.0);
+    if((int(pos.y) == 0 && int(pos.x) == 0) || (int(pos.y) == 0 && int(pos.z) == 0) || (int(pos.z) == 0 && int(pos.x) == 0)) {
+        lighting = vec3(15, 0, 15);
+    }
+
+    if(mod(pos.x, 1) > 0.98 || mod(pos.y, 1) > 0.98 || mod(pos.z, 1) > 0.98) {
+        lighting = vec3(0, 0, 15);
+    }
+
+    if (index < 0 || index >= 5832) {
+        lighting = vec3(0, 15, 0);
+    }
+
+    fragColor = vec4((1.0/15 * lighting), 1.0);
 
 }

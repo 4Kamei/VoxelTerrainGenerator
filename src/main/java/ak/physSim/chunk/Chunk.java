@@ -4,9 +4,11 @@ import ak.physSim.LightNode;
 import ak.physSim.render.meshes.FullMesh;
 import ak.physSim.render.Renderable;
 import ak.physSim.render.Transformation;
+import ak.physSim.util.Logger;
 import ak.physSim.util.ShaderProgram;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
+import com.sun.imageio.plugins.common.LZWCompressor;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.lwjgl.opengl.GL;
@@ -32,7 +34,7 @@ public class Chunk extends Renderable {
     //Data stored like this
     //TODO: U is usused. Probably going to make colours 8bit instead of 4
     //UUUU UUUU UUUU UUUU RRRR GGGG BBBB SSSS
-    private int[][][] lightmap = new int[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+    private int[][][] lightmap = new int[CHUNK_SIZE + 2][CHUNK_SIZE + 2][CHUNK_SIZE + 2];
 
     //Lightnode propagation in this chunk.
     private ArrayList<LightNode> lightSources;
@@ -45,10 +47,13 @@ public class Chunk extends Renderable {
     private boolean lightingNeedsUpdating;
 
     public Chunk(int x, int y, int z) {
-        for (int lX = 0; lX < 16; lX++) {
-            for (int lY = 0; lY < 16; lY++) {
-                for (int lZ = 0; lZ < 16; lZ++) {
+        for (int lX = 0; lX < 18; lX++) {
+            for (int lY = 0; lY < 18; lY++) {
+                for (int lZ = 0; lZ < 18; lZ++) {
                     lightmap[lX][lY][lZ] = 15; //OH
+                    if((lZ == 1 || lZ == 16)) {
+                        lightmap[lX][lY][lZ] = 10; //OH
+                    }
                 }
             }
         }
@@ -77,6 +82,7 @@ public class Chunk extends Renderable {
     }
 
     public void bindLighting(ShaderProgram program) {
+
         program.setUniform("voxelLight", lightmap);
     }
 
@@ -163,4 +169,21 @@ public class Chunk extends Renderable {
         return lightSources.toArray(new LightNode[lightSources.size()]);
     }
 
+    public void setLight(int x, int y, int z, int val) {
+        lightmap[x][y][z] = val;
+        Logger.log(Logger.LogLevel.ALL, "Set lighting in {" + x + "," + y + "," + z + "} to " + val);
+    }
+
+    public void setLight(int x) {
+        for (int lX = 0; lX < 18; lX++) {
+            for (int lY = 0; lY < 18; lY++) {
+                for (int lZ = 0; lZ < 18; lZ++) {
+                    lightmap[lX][lY][lZ] = 15; //OH
+                    if((lZ == x)) {
+                        lightmap[lX][lY][lZ] = 10; //OH
+                    }
+                }
+            }
+        }
+    }
 }

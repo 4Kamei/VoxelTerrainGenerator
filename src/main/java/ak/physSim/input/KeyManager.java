@@ -1,8 +1,8 @@
 package ak.physSim.input;
 
 import ak.physSim.entity.Player;
+import ak.physSim.main.WorldManager;
 import ak.physSim.util.Logger;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
 import java.util.HashMap;
@@ -31,6 +31,7 @@ public class KeyManager extends GLFWKeyCallback {
         defaultBindings.bind(20, GameAction.OPEN_CONSOLE);
         registerAction(GameAction.OPEN_CONSOLE, up -> {
             consoleOpen = true;
+            console.setVisible(true);
         } );
     }
 
@@ -39,6 +40,7 @@ public class KeyManager extends GLFWKeyCallback {
         if (consoleOpen && action == 1) {
             if (consoleBindings.getKey(scancode) == GameAction.CONSOLE_CLOSE) {
                 console.sendCommand();
+                console.setVisible(false);
                 consoleOpen = false;
                 return;
             }
@@ -47,7 +49,7 @@ public class KeyManager extends GLFWKeyCallback {
         } else if (!consoleOpen) {
             doAction(scancode, action);
         }
-        Logger.log(Logger.LogLevel.DEBUG, scancode + " : " + action + " : " + mods);
+        Logger.log(Logger.LogLevel.DEBUG, key + " : " + action + " : " + mods);
     }
 
     public void registerAction(GameAction trigger, KeyAction action) {

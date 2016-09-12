@@ -60,7 +60,8 @@ public class ChunkManager {
             }
         }
         long timeTaken = System.currentTimeMillis() - startTime;
-        Logger.log(Logger.LogLevel.ALL, "Average meshing time for " + i + " chunks is " + (timeTaken/i) + " total time is " + timeTaken);
+
+        Logger.log(Logger.LogLevel.ALL, "Average meshing time for " + i + " chunks is " + (i != 0 ? (timeTaken/i) : "<1") + ". Total time is " + timeTaken);
 
     }
 
@@ -204,4 +205,13 @@ public class ChunkManager {
         return value >= CHUNK_SIZE || value < 0;
     }
 
+    public void setLighting(int x, int y, int z, int val) {
+        Point3d p = new Point3d(getChunkPos(x), getChunkPos(y), getChunkPos(z));
+        if (!chunkMap.containsKey(p)) {
+            Logger.log(Logger.LogLevel.ERROR, "CHUNK NOT CONTAINED");
+        }
+        if (val < 0)
+            chunkMap.values().iterator().next().setLight(x);
+        chunkMap.values().iterator().next().setLight(x, y, z, val);
+    }
 }
