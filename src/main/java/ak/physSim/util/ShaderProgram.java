@@ -3,6 +3,7 @@ package ak.physSim.util;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GLUtil;
 
 import java.nio.FloatBuffer;
@@ -64,9 +65,17 @@ public class ShaderProgram {
             Logger.log(Logger.LogLevel.ERROR, "Uniform name not found " + uniformName);
         }
     }
+
     public void setUniform(String uniformName, Vector3f value) {
         if (uniforms.containsKey(uniformName)) {
             glUniform3f(uniforms.get(uniformName), value.x, value.y, value.z);
+        } else
+            Logger.log(Logger.LogLevel.ERROR, "Uniform name not found " + uniformName);
+    }
+
+    public void setUniform(String uniformName, int value) {
+        if (uniforms.containsKey(uniformName)) {
+            glUniform1i(uniforms.get(uniformName), value);
         } else
             Logger.log(Logger.LogLevel.ERROR, "Uniform name not found " + uniformName);
     }
@@ -116,7 +125,10 @@ public class ShaderProgram {
     }
 
     public void link() throws Exception {
+        System.out.println("Before");
         glLinkProgram(programId);
+        System.out.println("After");
+
         if (glGetProgrami(programId, GL_LINK_STATUS) == 0) {
             throw new Exception("Error linking Shader code: " + glGetShaderInfoLog(programId, 1024));
         }

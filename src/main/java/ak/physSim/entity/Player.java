@@ -10,21 +10,16 @@ import org.lwjgl.glfw.GLFW;
 /**
  * Created by Aleksander on 26/06/2016.
  */
-public class Player {
-    private Vector3f lookVector;
-    private Vector3f position;
+public class Player extends Camera {
     private final float speed = 100f;
     private boolean up, down, left, right;
-    private float azimuth, pitch;
     private float dmouseX, lmouseX;
     private float dmouseY, lmouseY;
     private boolean active;
     private boolean activeUpdated;
 
     public Player(Vector3f playerPosition, float azimuth, float pitch) {
-        this.position = playerPosition;
-        this.pitch = pitch;
-        this.azimuth = azimuth;
+        super(playerPosition, pitch, azimuth);
         caluclateLookVector();
     }
 
@@ -69,10 +64,6 @@ public class Player {
         }
     }
 
-    public Vector3f getLookVector() {
-        return lookVector;
-    }
-
     public void updateMouse(float mouseX, float mouseY){
         dmouseX = mouseX - lmouseX;
         lmouseX = mouseX;
@@ -85,50 +76,11 @@ public class Player {
         }
     }
 
-    private void addLook(float azimuth, float pitch){
-        this.pitch += pitch;
-        if (this.pitch + pitch > Math.PI) {
-            this.pitch = (float) Math.PI;
-        } if (this.pitch + pitch < 0){
-            this.pitch = 0;
-        }
-        this.azimuth += azimuth;
-        caluclateLookVector();
-    }
+
     private void setLook(double azimuth, double pitch){
         this.azimuth = (float) ((azimuth + Math.PI * 2) % (Math.PI * 2));
         this.pitch = (float) (((pitch) + Math.PI/2 +  Math.PI*2) % (Math.PI * 2));
         caluclateLookVector();
-    }
-
-    private void caluclateLookVector() {
-        float sinPitch = (float) Math.sin(-pitch);
-        lookVector = new Vector3f((float) (-sinPitch*Math.sin(azimuth)), (float) Math.cos(pitch), (float) (sinPitch*Math.cos(azimuth)));
-
-    }
-
-    public Vector3i getAxisVector(){
-        return new Vector3i(calNorm(lookVector.x), calNorm(lookVector.y), calNorm(lookVector.z));
-    }
-
-    private int calNorm(double number){
-        return (int) (number/Math.abs(number));
-    }
-
-    public Vector3f getTransform() {
-        return new Vector3f(position).mul(-1);
-    }
-
-    public Vector3f getPosition() {
-        return position;
-    }
-
-    public float getAzimuth() {
-        return azimuth;
-    }
-
-    public float getPitch() {
-        return (float) (pitch - Math.PI/2);
     }
 
     public boolean isActiveUpdated() {
@@ -144,7 +96,4 @@ public class Player {
         return active;
     }
 
-    public void setPosition(int x, int y, int z) {
-        this.position = new Vector3f(x, y, z);
-    }
 }

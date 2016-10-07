@@ -9,6 +9,7 @@ import ak.physSim.voxel.VoxelType;
 import org.joml.Vector3i;
 import org.lwjgl.opengl.GLCapabilities;
 
+import java.sql.ResultSet;
 import java.util.*;
 
 import static ak.physSim.util.Reference.CHUNK_SIZE;
@@ -22,13 +23,12 @@ public class ChunkManager {
     private LinkedList<Point3d> needsMeshUpdate;
     private GLCapabilities glCapabilities;
 
-    private Queue<LightNode> lightPropagationQueue;
+    private ArrayList<Point3d> viewReadyChunks = new ArrayList<>();
 
     public ChunkManager(GLCapabilities glCapabilities) {
         this.glCapabilities = glCapabilities;
         this.chunkMap = new HashMap<>();
         needsMeshUpdate = new LinkedList<>();
-        lightPropagationQueue = new LinkedList<>();
     }
 
     public void addChunk(Point3d point, Chunk chunk) {
@@ -43,6 +43,7 @@ public class ChunkManager {
             Logger.log(Logger.LogLevel.ERROR, "CHUNK WITH UNKNOWN POSITION ADDED {" + position.toString());
         if (!needsMeshUpdate.contains(position))
             needsMeshUpdate.add(position);
+        viewReadyChunks.remove(position);
     }
 
     public void computeAllMeshUpdates() {
@@ -67,7 +68,8 @@ public class ChunkManager {
 
     public void computeMeshUpdates() {
         for (int i = 0; i < 5 && needsMeshUpdate.peek() != null; i++) {
-            Chunk chunk = chunkMap.get(needsMeshUpdate.poll());
+            Point3d p = needsMeshUpdate.poll();
+            Chunk chunk = chunkMap.get(p);
             ChunkMesher mesher = new ChunkMesher(chunk, this);
             mesher.run();
             try {
@@ -75,16 +77,21 @@ public class ChunkManager {
             } catch (Exception e) {
                 Logger.log(Logger.LogLevel.ERROR, e.getMessage());
             }
+            viewReadyChunks.add(p);
         }
     }
 
     //Pass chucks to renderer
-    public ArrayList<Renderable> getChunks() {
+    public ArrayList<Chunk> getChunks() {
         if(needsMeshUpdate.size() > 0){
             System.out.println("computing");
-            computeAllMeshUpdates();
+            computeMeshUpdates();
         }
-        return new ArrayList<>(chunkMap.values());
+        ArrayList<Chunk> render = new ArrayList<>();
+        for (Point3d viewReadyChunk : viewReadyChunks) {
+            render.add(chunkMap.get(viewReadyChunk));
+        }
+        return render;
     }
 
     //Cleanup all chunks
@@ -92,73 +99,6 @@ public class ChunkManager {
         for (Chunk chunk : chunkMap.values()) {
             chunk.cleanup();
         }
-    }
-
-
-    //Caluclate lighting updates. Calculated every tick instead every light update to maybe save memory?
-
-    public void calculateLightingUpdates() {
-        chunkMap.values().stream().filter(Chunk::lightingNeedsUpdating).forEach(chunk -> {
-            for (LightNode lightNode : chunk.getLightingSources()) {
-                lightPropagationQueue.add(lightNode);
-            }
-        });
-        while (lightPropagationQueue.size() > 0) {
-            LightNode node = lightPropagationQueue.poll();
-            int x, y, z;
-            x = node.x;
-            y = node.y;
-            z = node.z;
-            checkLighting(x - 1, y, z, node);
-            checkLighting(x + 1, y, z, node);
-            checkLighting(x, y - 1, z, node);
-            checkLighting(x, y + 1, z, node);
-            checkLighting(x, y, z - 1, node);
-            checkLighting(x, y, z + 1, node);
-        }
-    }
-
-    private void checkLighting(int x, int y, int z, LightNode node) {
-        boolean newChunk = false;
-        Vector3i chunkPos = node.chunk.getPosition();
-        if (outOfBounds(x)) {
-            int addCX = x >> CHUNK_SIZE_POW2;
-            chunkPos.x += addCX;
-            if (addCX == 1) {
-                x = 0;
-            } else {
-                x = 15;
-            }
-            newChunk = true;
-        }
-        if (outOfBounds(y)) {
-            int addCY = y >> CHUNK_SIZE_POW2;
-            chunkPos.y += addCY;
-            if (addCY == 1) {
-                y = 0;
-            } else {
-                y = 15;
-            }
-            newChunk = true;
-        }
-        if (outOfBounds(z)) {
-            int addCZ = z >> CHUNK_SIZE_POW2;
-            chunkPos.y += addCZ;
-            if (addCZ == 1) {
-                z = 0;
-            } else {
-                z = 15;
-            }
-            newChunk = true;
-        }
-        LightNode newNode;
-        if (!newChunk) {
-            newNode = node.chunk.checkLighting(x, y, z, node);
-        } else {
-            newNode = chunkMap.get(new Point3d(chunkPos.x, chunkPos.y, chunkPos.z)).checkLighting(x, y, z, node);
-        }
-        if (newNode != null)
-            lightPropagationQueue.add(newNode);
     }
 
     public void addVoxel(int x, int y, int z, Voxel voxel) {
@@ -205,13 +145,4 @@ public class ChunkManager {
         return value >= CHUNK_SIZE || value < 0;
     }
 
-    public void setLighting(int x, int y, int z, int val) {
-        Point3d p = new Point3d(getChunkPos(x), getChunkPos(y), getChunkPos(z));
-        if (!chunkMap.containsKey(p)) {
-            Logger.log(Logger.LogLevel.ERROR, "CHUNK NOT CONTAINED");
-        }
-        if (val < 0)
-            chunkMap.values().iterator().next().setLight(x);
-        chunkMap.values().iterator().next().setLight(x, y, z, val);
-    }
 }

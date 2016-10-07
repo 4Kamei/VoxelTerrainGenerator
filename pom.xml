@@ -13,7 +13,6 @@
         <natives.version>0.0.6</natives.version>
         <lwjgl.version>3.0.0</lwjgl.version>
         <joml.version>1.8.0</joml.version>
-        <guava.version>19.0</guava.version>
     </properties>
 
     <repositories>
@@ -50,9 +49,9 @@
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
+            <groupId>org.l33tlabs.twl</groupId>
+            <artifactId>pngdecoder</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 
@@ -81,15 +80,27 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>ak.physSim.main.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
         </plugins>
         <resources>
             <resource>
-                <directory>res/</directory>
+                <directory>./res</directory>
                 <includes>
-                    <include>**/fragment.fs</include>
-                    <include>**/vertex.vs</include>
+                    <include>res/GLSL/fragment.fs</include>
+                    <include>res/GLSL/vertex.vs</include>
                 </includes>
-                <targetPath>res</targetPath>
             </resource>
         </resources>
     </build>

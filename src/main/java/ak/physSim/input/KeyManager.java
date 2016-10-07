@@ -29,6 +29,7 @@ public class KeyManager extends GLFWKeyCallback {
         consoleBindings = new KeyBindingManager(false);
         consoleBindings.bind(28, GameAction.CONSOLE_CLOSE);
         defaultBindings.bind(20, GameAction.OPEN_CONSOLE);
+        defaultBindings.bind(16, GameAction.SET_LIGHT);
         registerAction(GameAction.OPEN_CONSOLE, up -> {
             consoleOpen = true;
             console.setVisible(true);

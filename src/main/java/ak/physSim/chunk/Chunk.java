@@ -34,31 +34,16 @@ public class Chunk extends Renderable {
     //Data stored like this
     //TODO: U is usused. Probably going to make colours 8bit instead of 4
     //UUUU UUUU UUUU UUUU RRRR GGGG BBBB SSSS
-    private int[][][] lightmap = new int[CHUNK_SIZE + 2][CHUNK_SIZE + 2][CHUNK_SIZE + 2];
 
     //Lightnode propagation in this chunk.
-    private ArrayList<LightNode> lightSources;
 
     private FullMesh mesh;
 
     //Position as vector, used for transform
     private Vector3i position;
 
-    private boolean lightingNeedsUpdating;
-
     public Chunk(int x, int y, int z) {
-        for (int lX = 0; lX < 18; lX++) {
-            for (int lY = 0; lY < 18; lY++) {
-                for (int lZ = 0; lZ < 18; lZ++) {
-                    lightmap[lX][lY][lZ] = 15; //OH
-                    if((lZ == 1 || lZ == 16)) {
-                        lightmap[lX][lY][lZ] = 10; //OH
-                    }
-                }
-            }
-        }
         this.position = new Vector3i(x, y, z).mul(CHUNK_SIZE);
-        lightSources = new ArrayList<>();
     }
 
     public Voxel[][][] getVoxels() {
@@ -71,19 +56,6 @@ public class Chunk extends Renderable {
 
     public void setVoxel(int x, int y, int z, Voxel voxel) {
         voxels[x][y][z] = voxel;
-        lightingNeedsUpdating = true;
-        if (voxel == null)
-            return;
-        if (voxel.getType().isLighting()) {
-            byte value = (byte) voxel.getType().getLightingLevel();
-            setArtificialLighting(x, y, z, value);
-            lightSources.add(new LightNode(x, y, z, value, this));
-        }
-    }
-
-    public void bindLighting(ShaderProgram program) {
-
-        program.setUniform("voxelLight", lightmap);
     }
 
     public void render() {
@@ -120,70 +92,5 @@ public class Chunk extends Renderable {
 
     public Vector3i getPosition() {
         return new Vector3i(position);
-    }
-
-    //0000 0000 0000 SSSS
-    public int getSunlighting(int x, int y, int z){
-        return lightmap[x][y][z] & 0xF;
-    }
-
-    public void setSunlight(int x, int y, int z, int value){
-        lightmap[x][y][z] = (short) ((lightmap[x][y][z] & 0xfff0) | (value & 0xf));
-    }
-
-    //0000 0000 XXXX 0000
-    private void setArtificialLighting(int x, int y, int z, int value){
-        lightmap[x][y][z] = (short) ((lightmap[x][y][z] * 0xf0) | (value & 0xf) << 4);
-    }
-
-    private int getArtificialLighting(int x, int y, int z){
-        return lightmap[x][y][z] >> 4 & 0xf;
-    }
-
-    public void doChunkUpdate() {
-        //Chunk update
-    }
-
-    public LightNode checkLighting(int x, int y, int z, LightNode node) {
-        if (voxels[x][y][z].getType() == VoxelType.AIR) { //TODO:: Check if transparent instead of air
-            byte lightLevel = node.level;
-            if (lightLevel == 0) {
-                return null;
-            }
-            if (lightmap[x][y][z] < lightLevel) {
-                lightmap[x][y][z] = lightLevel;
-                return new LightNode(x, y, z, lightLevel, this);
-            }
-        } else {
-            lightmap[x][y][z] = 0;
-        }
-        return null;
-    }
-
-
-    public boolean lightingNeedsUpdating() {
-        return lightingNeedsUpdating;
-    }
-
-    public LightNode[] getLightingSources() {
-        return lightSources.toArray(new LightNode[lightSources.size()]);
-    }
-
-    public void setLight(int x, int y, int z, int val) {
-        lightmap[x][y][z] = val;
-        Logger.log(Logger.LogLevel.ALL, "Set lighting in {" + x + "," + y + "," + z + "} to " + val);
-    }
-
-    public void setLight(int x) {
-        for (int lX = 0; lX < 18; lX++) {
-            for (int lY = 0; lY < 18; lY++) {
-                for (int lZ = 0; lZ < 18; lZ++) {
-                    lightmap[lX][lY][lZ] = 15; //OH
-                    if((lZ == x)) {
-                        lightmap[lX][lY][lZ] = 10; //OH
-                    }
-                }
-            }
-        }
     }
 }

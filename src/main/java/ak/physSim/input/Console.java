@@ -13,7 +13,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 
 /**
  * Created by Aleksander on 30/08/2016.
@@ -66,25 +68,9 @@ public class Console {
         if (command == null)
             return;
         Logger.log(Logger.LogLevel.ALL, command);
-        if (command.startsWith("l "))
-            sendLighting(command.split(" "));
         command = "";
     }
 
-    private void sendLighting(String[] split) {
-        try {
-            if (split.length == 2)
-                manager.setLight(Integer.parseInt(split[1]), 0, 0, -1);
-            int[] coords = new int[3];
-            for (int i = 0; i < coords.length; i++) {
-                coords[i] = Integer.parseInt(split[i + 1]);
-            }
-            int val = Integer.parseInt(split[4]);
-            manager.setLight(coords[0], coords[1], coords[2], val);
-        } catch (Exception ign) {
-            ign.printStackTrace();
-        }
-    }
 
     public void setVisible(boolean visible) {
         this.visible = visible;

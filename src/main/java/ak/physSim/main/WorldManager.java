@@ -27,36 +27,46 @@ public class WorldManager {
         this.player = player;
         this.capabilities = capabilities;
 
-        generatePlane();
+        //generateLandscape(80, 80);
+        //generateBlobs();
+
+        manager = new ChunkManager(capabilities);
+        generatePlane(10, 0, 0, 0);
+        generatePlane(5, 0, 10, 0);
+        generateLines();
+        generatePillars();
+        //generateBlobs();
+        //generateLandscape(100, 100);
     }
 
-    private void generatePlane() {
-        manager = new ChunkManager(capabilities);
-        Chunk c = new Chunk(0, 0, 0);
-        for (int cX = 0; cX < 16; cX++) {
-            for (int cZ = 0; cZ < 16; cZ++) {
-                for (int cY = 0; cY < 16; cY++) {
-                    c.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
+    private void generatePillars() {
+
+    }
+
+    private void generatePlane(int size, int offsetX, int offsetY, int offsetZ) {
+        for (int x = -size; x < size; x++) {
+            for (int z = -size; z < size; z++) {
+                Chunk c = new Chunk(x + offsetX, offsetY, z + offsetZ);
+                for (int cX = 0; cX < 16; cX++) {
+                    for (int cZ = 0; cZ < 16; cZ++) {
+                        for (int cY = 0; cY < 16; cY++) {
+                            c.setVoxel(cX, cY, cZ, new Voxel(VoxelType.STONE));
+                        }
+                    }
                 }
+                manager.addChunk(x + offsetX, offsetY, z + offsetZ, c);
+                c.setup(capabilities);
             }
         }
-        manager.addChunk(0, 0, 0, c);
-        c.setup(capabilities);
-
-
-        manager.computeAllMeshUpdates();;
     }
 
     private void generateLines(){
 
-        manager = new ChunkManager(capabilities);
 
         for (int i = 1; i < 10; i++) {
                 drawRing(0, 0, 0,   5 * i, 3*i, VoxelType.STONE);
                 drawRing(0, 3*i, 0, 5 * i, 1, VoxelType.GRASS);
         }
-
-        manager.computeAllMeshUpdates();
     }
 
     private void drawRing(int x0, int y0, int z0, int radius, int height, VoxelType type){
@@ -87,11 +97,10 @@ public class WorldManager {
         }
     }
 
-    private void generateLandscape() {
-        manager = new ChunkManager(capabilities);
-        for (int x = -100; x < 100; x++) {
-            for (int z = -100; z < 100; z++) {
-                int height = 5 + (int) ((Noise.gradientCoherentNoise3D(x/160f, 0, z/160f, 23, NoiseQuality.BEST) + 1)/2 * 160);
+    private void generateLandscape(int xS, int zS) {
+        for (int x = -xS; x < xS; x++) {
+            for (int z = -zS; z < zS; z++) {
+                int height = 5 + (int) ((Noise.gradientCoherentNoise3D(x/60f, 0, z/60f, 23, NoiseQuality.BEST) + 1)/2 * 60);
                 for (int y = 0; y < height; y++) {
                     if (y < 10)
                         addVoxel(x, y, z, new Voxel(VoxelType.DARK_STONE));
@@ -102,21 +111,18 @@ public class WorldManager {
 
             }
         }
-        manager.computeAllMeshUpdates();
-        player.setPosition(0, 7 + (int) ((Noise.gradientCoherentNoise3D(0, 0, 0, 23, NoiseQuality.BEST) + 1)/2 * 160), 0);
+        player.setPosition(0, 7 + (int) ((Noise.gradientCoherentNoise3D(0, 0, 0, 23, NoiseQuality.BEST) + 1) / 2 * 160), 0);
     }
 
     private void generateBlobs(){
-        manager = new ChunkManager(capabilities);
         int rad = 10;
         for (int x = -rad; x < rad; x++) {
-            for (int y = 0; y < rad*2; y++) {
+            for (int y = 0; y < 5; y++) {
                 for (int z = -rad; z < rad; z++) {
                     manager.addChunk(new Point3d(x, y, z), generateBlobChunk(x, y, z));
                 }
             }
         }
-        manager.computeAllMeshUpdates();
     }
 
     private Chunk generateBlobChunk(int x, int y, int z) {
@@ -137,7 +143,7 @@ public class WorldManager {
         manager.addVoxel(x, y, z, voxel);
     }
 
-    public ArrayList<Renderable> getObjectsToRender() {
+    public ArrayList<Chunk> getObjectsToRender() {
         return manager.getChunks();
     }
 
@@ -166,7 +172,7 @@ public class WorldManager {
         manager.addChunk(x, y, z, c);
     }
 
-    public void setLight(int x, int y, int z, int val) {
-        manager.setLighting(x, y, z, val);
+    public void updatePosition() {
+
     }
 }
