@@ -9,7 +9,7 @@ in vec4 mlightviewVertexPos;
 
 out vec4 fragColor;
 
-uniform sampler2Dshadow shadowMap;
+uniform sampler2D shadowMap;
 
 float calcShadow(vec4 position)
 {
