@@ -1,7 +1,6 @@
 package ak.physSim.input;
 
 import ak.physSim.entity.Player;
-import ak.physSim.main.WorldManager;
 import ak.physSim.util.Logger;
 import org.lwjgl.glfw.GLFWKeyCallback;
 

@@ -1,21 +1,8 @@
 package ak.physSim.input;
 
-import ak.physSim.main.WorldManager;
-import ak.physSim.render.Renderable;
-import ak.physSim.render.Renderer;
+import ak.physSim.map.WorldManager;
 import ak.physSim.util.Logger;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL11;
-
-import javax.swing.*;
-import javax.swing.plaf.basic.BasicTextUI;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
 
 /**
  * Created by Aleksander on 30/08/2016.

@@ -17,13 +17,20 @@ float calcShadow(vec4 position)
     // Transform from screen coordinates to texture coordinates
     projCoords = projCoords * 0.5 + 0.5;
     //float theta = acos( clamp( dot(localNormal,
-    float bias = 0.0;
+    float bias = 0.005;
 
     float shadowFactor = 0.0;
 
     int size = 3;
 
     vec2 inc = 1.0 / textureSize(shadowMap, 0);
+
+    if (projCoords.x > 1 || projCoords.x < 0) {
+        return 1;
+    }
+    if (projCoords.x > 1 ||projCoords.x < 0) {
+        return 1;
+    }
 
     for(int row = -size; row <= size; ++row)
     {

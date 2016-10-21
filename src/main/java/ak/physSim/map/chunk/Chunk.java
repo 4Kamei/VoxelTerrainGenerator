@@ -1,21 +1,15 @@
-package ak.physSim.chunk;
+package ak.physSim.map.chunk;
 
-import ak.physSim.LightNode;
 import ak.physSim.render.meshes.FullMesh;
 import ak.physSim.render.Renderable;
 import ak.physSim.render.Transformation;
-import ak.physSim.util.Logger;
-import ak.physSim.util.ShaderProgram;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
-import com.sun.imageio.plugins.common.LZWCompressor;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GLCapabilities;
-
-import java.util.ArrayList;
 
 import static ak.physSim.util.Reference.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -55,6 +49,11 @@ public class Chunk extends Renderable {
     }
 
     public void setVoxel(int x, int y, int z, Voxel voxel) {
+        //Set voxel, air and null are the same (delete voxel)
+        if(voxel.getType() == VoxelType.AIR) {
+            voxels[x][y][z] = null;
+            return;
+        }
         voxels[x][y][z] = voxel;
     }
 
@@ -63,8 +62,12 @@ public class Chunk extends Renderable {
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);
-
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+/*
+        if (b)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+        else
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        */
 //        Logger.log(Logger.LogLevel.DEBUG, "Rendering at " + String.format("{%.1f,%.1f,%.1f}", position.x, position.y, position.z));
         glDrawElements(GL_TRIANGLES, mesh.getVertCount(), GL_UNSIGNED_INT, 0);
 
@@ -86,11 +89,12 @@ public class Chunk extends Renderable {
 
     @Override
     public void cleanup() {
+        if (mesh != null)
         mesh.cleanup();
         transformation = null;
     }
 
-    public Vector3i getPosition() {
-        return new Vector3i(position);
+    public final Vector3i getPosition() {
+        return position;
     }
 }

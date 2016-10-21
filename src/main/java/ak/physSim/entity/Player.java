@@ -11,6 +11,7 @@ import org.lwjgl.glfw.GLFW;
  * Created by Aleksander on 26/06/2016.
  */
 public class Player extends Camera {
+
     private final float speed = 100f;
     private boolean up, down, left, right;
     private float dmouseX, lmouseX;
@@ -22,7 +23,6 @@ public class Player extends Camera {
         super(playerPosition, pitch, azimuth);
         caluclateLookVector();
     }
-
 
     public void setKeysMovement(GameAction action, boolean statePressed) {
         if (action == GameAction.PLAYER_LEFT) {
@@ -95,5 +95,4 @@ public class Player extends Camera {
         activeUpdated = true;
         return active;
     }
-
 }

@@ -1,19 +1,18 @@
-package ak.physSim.chunk;
+package ak.physSim.map;
 
-import ak.physSim.LightNode;
-import ak.physSim.render.Renderable;
+import ak.physSim.map.chunk.ChunkMesher;
+import ak.physSim.map.chunk.Chunk;
 import ak.physSim.util.Logger;
 import ak.physSim.util.Point3d;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
-import org.joml.Vector3i;
 import org.lwjgl.opengl.GLCapabilities;
 
-import java.sql.ResultSet;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 import static ak.physSim.util.Reference.CHUNK_SIZE;
-import static ak.physSim.util.Reference.CHUNK_SIZE_POW2;
 
 /**
  * Created by Aleksander on 26/06/2016.
@@ -24,7 +23,7 @@ public class ChunkManager {
     private GLCapabilities glCapabilities;
 
     private ArrayList<Point3d> viewReadyChunks = new ArrayList<>();
-
+    private ArrayList<Chunk> renderableChunkList = new ArrayList<>();
     public ChunkManager(GLCapabilities glCapabilities) {
         this.glCapabilities = glCapabilities;
         this.chunkMap = new HashMap<>();
@@ -44,6 +43,7 @@ public class ChunkManager {
         if (!needsMeshUpdate.contains(position))
             needsMeshUpdate.add(position);
         viewReadyChunks.remove(position);
+        renderableChunkList.remove(chunkMap.get(position));
     }
 
     public void computeAllMeshUpdates() {
@@ -67,7 +67,7 @@ public class ChunkManager {
     }
 
     public void computeMeshUpdates() {
-        for (int i = 0; i < 5 && needsMeshUpdate.peek() != null; i++) {
+        for (int i = 0; i < 1 && needsMeshUpdate.peek() != null; i++) {
             Point3d p = needsMeshUpdate.poll();
             Chunk chunk = chunkMap.get(p);
             ChunkMesher mesher = new ChunkMesher(chunk, this);
@@ -78,6 +78,7 @@ public class ChunkManager {
                 Logger.log(Logger.LogLevel.ERROR, e.getMessage());
             }
             viewReadyChunks.add(p);
+            renderableChunkList.add(chunk);
         }
     }
 
@@ -87,11 +88,8 @@ public class ChunkManager {
             System.out.println("computing");
             computeMeshUpdates();
         }
-        ArrayList<Chunk> render = new ArrayList<>();
-        for (Point3d viewReadyChunk : viewReadyChunks) {
-            render.add(chunkMap.get(viewReadyChunk));
-        }
-        return render;
+
+        return renderableChunkList;
     }
 
     //Cleanup all chunks

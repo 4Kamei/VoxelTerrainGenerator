@@ -1,6 +1,6 @@
 package ak.physSim;
 
-import ak.physSim.chunk.Chunk;
+import ak.physSim.map.chunk.Chunk;
 
 /**
  * Created by Aleksander on 26/07/2016.

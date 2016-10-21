@@ -1,5 +1,6 @@
-package ak.physSim.chunk;
+package ak.physSim.map.chunk;
 
+import ak.physSim.map.ChunkManager;
 import ak.physSim.render.meshes.FullMesh;
 import ak.physSim.util.Logger;
 import ak.physSim.voxel.Voxel;
