@@ -13,4 +13,5 @@ public class Reference {
     public static final int X_MINUS = 3;
     public static final int Y_PLUS = 4;
     public static final int Y_MINUS = 5;
+    public static final float MAX_RENDER = 1500f;
 }

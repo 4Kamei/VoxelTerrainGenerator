@@ -7,12 +7,11 @@ import java.util.HashMap;
  * Created by Aleksander on 25/06/2016.
  */
 public enum  VoxelType {
-
-    //TODO: Separate each type into its own class maybe?
     STONE (0.6f, 0.6f, 0.6f, 0),
     DARK_STONE (0.8f, 0.8f, 0.8f, 0),
     GRASS (0, 0.4f, 0, 0),
     AIR(0, 0, 0, 0),
+    WATER(0, 0, 0.9f, 0),
     LIGHT(1,1,0, 15);
 
     private final float[] colour = new float[3];
@@ -35,4 +34,5 @@ public enum  VoxelType {
     public int getLightingLevel() {
         return lightLevel;
     }
+
 }

@@ -33,12 +33,6 @@ public class ShaderProgram {
         }
     }
 
-    public void createLightUniform(String uniformName) throws Exception {
-        createUniform(uniformName + ".colIntensities");
-        createUniform(uniformName + ".position");
-        createUniform(uniformName + ".power");
-    }
-
     public void createUniform(String uniformName) {
         int uniformLocation = glGetUniformLocation(programId, uniformName);
         Logger.log(Logger.LogLevel.DEBUG, uniformName + " location " + uniformLocation);
@@ -125,9 +119,7 @@ public class ShaderProgram {
     }
 
     public void link() throws Exception {
-        System.out.println("Before");
         glLinkProgram(programId);
-        System.out.println("After");
 
         if (glGetProgrami(programId, GL_LINK_STATUS) == 0) {
             throw new Exception("Error linking Shader code: " + glGetShaderInfoLog(programId, 1024));

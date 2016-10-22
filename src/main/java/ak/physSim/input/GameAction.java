@@ -18,5 +18,5 @@ public enum GameAction {
     DEBUG_2,
     DEBUG_3,
     DEBUG_4,
-    SET_LIGHT,
+    SET_LIGHT, PLAYER_FLY,
 }

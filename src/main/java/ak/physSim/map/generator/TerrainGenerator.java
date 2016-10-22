@@ -1,5 +1,7 @@
 package ak.physSim.map.generator;
 
+import ak.physSim.util.Logger;
+
 /**
  * Created by Aleksander on 16/09/2016.
  */
@@ -20,9 +22,15 @@ public class TerrainGenerator {
 
     private int width, height;
 
-    public TerrainGenerator(long nSeed1) {
+    public TerrainGenerator(long nSeed1, int width, int height, float scale) {
+        Logger.log(Logger.LogLevel.ALL, "Started generating map");
+        long time = System.currentTimeMillis();
+        this.scale = scale;
 
-        moistureMap = new float[width][height];
+        this.width = width;
+        this.height = height;
+        width *= scale;
+        height *= scale;
         nSeed2 = nSeed1 - 1;
         nSeed4 = nSeed1 - 2;
         radialMap = generateRadialMap(width, height);
@@ -34,6 +42,8 @@ public class TerrainGenerator {
         noise4 = generateNoiseMap(width, height, 4);
 
         elevationMap = blendMaps(width, height, cutOff, radialMap, noise1, noise2, noise4);
+
+        Logger.log(Logger.LogLevel.ALL, "Finished generating map. Time taken = " + (System.currentTimeMillis() - time) + "ms");
 
         //TODO: Calculate moisture and heat maps
     }
@@ -66,6 +76,12 @@ public class TerrainGenerator {
                     min = finalMap[x][y];
                 if (finalMap[x][y] > max)
                     max = finalMap[x][y];
+            }
+        }
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                finalMap[x][y] = (finalMap[x][y] - min) / (max - min);
             }
         }
 
@@ -105,10 +121,12 @@ public class TerrainGenerator {
     }
 
     public float getElevation(float x, float z) {
-        if (x < 0 || z < 0 || x > width || z > height)
+        if (x < -width/2 || z < -height/2 || x >= width/2 || z >= height/2)
             return 0;
-        int posX = Math.round(x);
-        int posZ = Math.round(z);
+        int posX = Math.round(x) + width/2;
+        int posZ = Math.round(z) + height/2;
+        posX *= scale;
+        posZ *= scale;
         return elevationMap[posX][posZ];
     }
 }

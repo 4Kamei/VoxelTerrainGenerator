@@ -6,6 +6,7 @@ import ak.physSim.util.Logger;
 import ak.physSim.util.Point3d;
 import ak.physSim.voxel.Voxel;
 import ak.physSim.voxel.VoxelType;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class ChunkManager {
     private GLCapabilities glCapabilities;
 
     private ArrayList<Point3d> viewReadyChunks = new ArrayList<>();
-    private ArrayList<Chunk> renderableChunkList = new ArrayList<>();
+    private volatile ArrayList<Chunk> renderableChunkList = new ArrayList<>();
     public ChunkManager(GLCapabilities glCapabilities) {
         this.glCapabilities = glCapabilities;
         this.chunkMap = new HashMap<>();
@@ -71,6 +72,7 @@ public class ChunkManager {
             Point3d p = needsMeshUpdate.poll();
             Chunk chunk = chunkMap.get(p);
             ChunkMesher mesher = new ChunkMesher(chunk, this);
+            //TODO : Compute data in update thread and set mesh in render thread
             mesher.run();
             try {
                 chunk.setMesh(mesher.getMesh());
@@ -82,13 +84,12 @@ public class ChunkManager {
         }
     }
 
-    //Pass chucks to renderer
-    public ArrayList<Chunk> getChunks() {
-        if(needsMeshUpdate.size() > 0){
-            System.out.println("computing");
-            computeMeshUpdates();
-        }
+    public boolean needMeshUpdates() {
+        return needsMeshUpdate.size() > 0;
+    }
 
+    //Pass chunks to renderer
+    public ArrayList<Chunk> getChunks(float distance) {
         return renderableChunkList;
     }
 
@@ -99,11 +100,11 @@ public class ChunkManager {
         }
     }
 
-    public void addVoxel(int x, int y, int z, Voxel voxel) {
+    public void addVoxel(int x, int y, int z, VoxelType voxel) {
         Point3d chunkPoint =  new Point3d(getChunkPos(x), getChunkPos(y), getChunkPos(z));
         if (!chunkMap.containsKey(chunkPoint))
             chunkMap.put(chunkPoint, createNewChunk(chunkPoint));
-        if(voxel.getType() != VoxelType.AIR) {
+        if(voxel != VoxelType.AIR) {
             chunkMap.get(chunkPoint).setVoxel(x - chunkPoint.getX() * CHUNK_SIZE, y - chunkPoint.getY() * CHUNK_SIZE, z - chunkPoint.getZ() * CHUNK_SIZE, voxel);
         } else {
             chunkMap.get(chunkPoint).setVoxel(x - chunkPoint.getX() * CHUNK_SIZE, y - chunkPoint.getY() * CHUNK_SIZE, z - chunkPoint.getZ() * CHUNK_SIZE, null);
@@ -137,6 +138,7 @@ public class ChunkManager {
 
     public void addChunk(int x, int y, int z, Chunk chunk) {
         addChunk(new Point3d(x, y, z), chunk);
+        chunk.setup(GL.getCapabilities());
     }
 
     private boolean outOfBounds(int value) {

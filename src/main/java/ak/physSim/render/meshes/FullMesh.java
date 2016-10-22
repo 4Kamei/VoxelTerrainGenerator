@@ -1,5 +1,7 @@
 package ak.physSim.render.meshes;
 
+import ak.physSim.util.Logger;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL30;
 
@@ -25,12 +27,14 @@ public class FullMesh implements Mesh{
     private int vboColourId;
     private int vertCount;
     private int vboNormalsId;
-
-    public FullMesh(FloatBuffer floatBuffer, FloatBuffer colourBuffer, IntBuffer intBuffer, int vertCount){
-        createMesh(floatBuffer, colourBuffer, intBuffer, null, vertCount);
-    }
+    private Vector3f[] vertices;
 
     public FullMesh(float[] vertices, float[] colours, int[] indices, float[] normals) {
+        this.vertices = new Vector3f[vertices.length/3];
+        for (int i = 0; i < this.vertices.length; i ++) {
+            this.vertices[i] = new Vector3f(vertices[i], vertices[i+1], vertices[i+2]);
+        }
+
         FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(vertices.length);
         verticesBuffer.put(vertices);
         verticesBuffer.flip();
@@ -48,7 +52,6 @@ public class FullMesh implements Mesh{
         indicesBuffer.flip();
 
         createMesh(verticesBuffer, colourBuffer, indicesBuffer, normalsBuffer, indices.length);
-
     }
 
     private void createMesh(FloatBuffer vericesBuffer,
@@ -119,5 +122,11 @@ public class FullMesh implements Mesh{
         // Delete the VAO
         GL30.glBindVertexArray(0);
         GL30.glDeleteVertexArrays(vaoId);
+    }
+
+    public Vector3f[] getVertices() {
+        if (vertices == null)
+            Logger.log(Logger.LogLevel.ERROR, "VERTICES NOT FOUND");
+        return vertices;
     }
 }

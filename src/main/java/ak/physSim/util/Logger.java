@@ -29,9 +29,6 @@ public class Logger {
         printlog = !printlog;
     }
     public static void log(LogLevel level, String mess){
-        if (level == LogLevel.ERROR)
-            return;
-
         String[] messages = mess.split("\n");
         for (String message : messages) {
             Date now = new Date();

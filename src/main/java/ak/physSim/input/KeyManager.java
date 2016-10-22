@@ -2,6 +2,7 @@ package ak.physSim.input;
 
 import ak.physSim.entity.Player;
 import ak.physSim.util.Logger;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
 import java.util.HashMap;
@@ -26,9 +27,7 @@ public class KeyManager extends GLFWKeyCallback {
         action = new HashMap<>();
         defaultBindings = new KeyBindingManager(true);
         consoleBindings = new KeyBindingManager(false);
-        consoleBindings.bind(28, GameAction.CONSOLE_CLOSE);
-        defaultBindings.bind(20, GameAction.OPEN_CONSOLE);
-        defaultBindings.bind(16, GameAction.SET_LIGHT);
+        consoleBindings.bind(GLFW.GLFW_KEY_ENTER, GameAction.CONSOLE_CLOSE);
         registerAction(GameAction.OPEN_CONSOLE, up -> {
             consoleOpen = true;
             console.setVisible(true);
@@ -38,7 +37,7 @@ public class KeyManager extends GLFWKeyCallback {
     @Override
     public void invoke(long window, int key, int scancode, int action, int mods) {
         if (consoleOpen && action == 1) {
-            if (consoleBindings.getKey(scancode) == GameAction.CONSOLE_CLOSE) {
+            if (consoleBindings.getKey(key) == GameAction.CONSOLE_CLOSE) {
                 console.sendCommand();
                 console.setVisible(false);
                 consoleOpen = false;
@@ -47,7 +46,7 @@ public class KeyManager extends GLFWKeyCallback {
             console.parse(scancode, key, mods == 1);
             return;
         } else if (!consoleOpen) {
-            doAction(scancode, action);
+            doAction(key, action);
         }
         Logger.log(Logger.LogLevel.DEBUG, key + " : " + action + " : " + mods);
     }
@@ -72,5 +71,6 @@ public class KeyManager extends GLFWKeyCallback {
         registerAction(GameAction.PLAYER_LEFT, (keyPressed) -> player.setKeysMovement(GameAction.PLAYER_LEFT, keyPressed));
         registerAction(GameAction.PLAYER_RIGHT, (keyPressed) -> player.setKeysMovement(GameAction.PLAYER_RIGHT, keyPressed));
         registerAction(GameAction.PLAYER_ENTER, (keyPressed) -> player.setKeysOther(GameAction.PLAYER_ENTER, keyPressed));
+        registerAction(GameAction.PLAYER_FLY, (keyPressed) -> player.setKeysOther(GameAction.PLAYER_FLY, keyPressed));
     }
 }

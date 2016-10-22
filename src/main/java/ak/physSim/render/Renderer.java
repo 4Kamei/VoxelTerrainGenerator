@@ -2,6 +2,7 @@ package ak.physSim.render;
 
 import ak.physSim.entity.Light;
 import ak.physSim.entity.Player;
+import ak.physSim.map.ChunkManager;
 import ak.physSim.map.chunk.Chunk;
 import ak.physSim.util.Logger;
 import ak.physSim.util.ShaderProgram;
@@ -23,25 +24,19 @@ import static ak.physSim.util.Reference.CHUNK_SIZE;
  */
 public class Renderer {
 
-    int frameCount;
-    private long totalTime;
+    private int frameCount;
+    //All of the scene objects. Subject to change.
+    private ArrayList<Chunk> renderables;
 
     //Shader for rendering the scene
     private ShaderProgram sceneRenderProgram;
-    //All of the scene objects. Subject to change.
-    private ArrayList<Chunk> renderables;
     //Scene projection matrix
     private Matrix4f projectionMatrix;
 
-    //Shader for rendering the console/ui
-    private ShaderProgram depthRenderProgram;
-
-    //Orthogonal projection matrix. For UI
-    private Matrix4f orthMatrix;
-
     //Create shadow shadowMap
     private ShadowMap shadowMap;
-
+    //Shader for rendering the console/ui
+    private ShaderProgram depthRenderProgram;
     //Scene light
     private Light areaLight;
 
@@ -62,17 +57,19 @@ public class Renderer {
 
     private Chunk chunk;
     private Vector3i pos;
-    private boolean renderLight;
+
+    private final ChunkManager chunkManager;
 
     public void setResolution(int w, int h) {
         this.width = w;
         this.height = h;
     }
 
-    public Renderer(ShaderProgram defaultProgram, ShaderProgram depthRender, Matrix4f projectionMatrix) throws Exception {
+    public Renderer(ShaderProgram defaultProgram, ShaderProgram depthRender, Matrix4f projectionMatrix, ChunkManager manager) throws Exception {
         this.sceneRenderProgram = defaultProgram;
         this.depthRenderProgram = depthRender;
         this.projectionMatrix = projectionMatrix;
+        this.chunkManager = manager;
         renderables = new ArrayList<>();
         shadowMap = new ShadowMap();
         areaLight = new Light(20, new Vector3f(0), (float) (0.75 * Math.PI), (float) (0.75 * Math.PI));
@@ -86,6 +83,10 @@ public class Renderer {
         //start counting time (nanoseconds)
         if (startTime == 0)
             startTime = System.currentTimeMillis();
+
+        //TODO Check if there is enough time (low load -> can compute more meshes)
+        if (chunkManager.needMeshUpdates())
+            chunkManager.computeMeshUpdates();
 
         projectionViewMatrix.identity().mul(projectionMatrix).mul(viewMatrix);
 
@@ -202,9 +203,6 @@ public class Renderer {
         areaLight.addLook(0, (float) v / 100f);
     }
 
-    public void setRenderLight(boolean renderLight) {
-        this.renderLight = renderLight;
-    }
     public float getLightPitch() {
         return areaLight.getPitch();
     }
