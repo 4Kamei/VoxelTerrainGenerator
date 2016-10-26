@@ -31,14 +31,14 @@ public class ChunkManager {
         needsMeshUpdate = new LinkedList<>();
     }
 
-    public void addChunk(Point3d point, Chunk chunk) {
+    private void addChunk(Point3d point, Chunk chunk) {
         if (!chunkMap.containsKey(point))
             chunkMap.put(point, chunk);
         setNeedsMeshUpdate(point);
         Logger.log(Logger.LogLevel.DEBUG, "added chunk " + point.toString());
     }
 
-    public void setNeedsMeshUpdate(Point3d position) {
+    private void setNeedsMeshUpdate(Point3d position) {
         if (!chunkMap.containsKey(position))
             Logger.log(Logger.LogLevel.ERROR, "CHUNK WITH UNKNOWN POSITION ADDED {" + position.toString());
         if (!needsMeshUpdate.contains(position))
@@ -47,7 +47,7 @@ public class ChunkManager {
         renderableChunkList.remove(chunkMap.get(position));
     }
 
-    public void computeAllMeshUpdates() {
+    private void computeAllMeshUpdates() {
         int i = 0;
         long startTime = System.currentTimeMillis();
         while (needsMeshUpdate.peek() != null){
@@ -93,11 +93,32 @@ public class ChunkManager {
         return renderableChunkList;
     }
 
+
+    private Chunk createNewChunk(Point3d point3d) {
+        return createNewChunk(point3d.getX(), point3d.getY(), point3d.getZ());
+    }
+
+    private Chunk createNewChunk(int x, int y, int z) {
+        Chunk chunk = new Chunk(x, y, z);
+        Logger.log(Logger.LogLevel.DEBUG, "Adding new chunk " + new Point3d(x,y,z).toString());
+        chunk.setup(glCapabilities);
+        return chunk;
+    }
+
     //Cleanup all chunks
     public void cleanup() {
         for (Chunk chunk : chunkMap.values()) {
             chunk.cleanup();
         }
+    }
+
+
+    public Voxel getVoxel(int x, int y, int z) {
+        Point3d point = new Point3d(getChunkPos(x), getChunkPos(y), getChunkPos(z));
+        if (chunkMap.containsKey(point)) {
+            return chunkMap.get(point).getVoxel(x - point.getX()*CHUNK_SIZE, y - point.getY()*CHUNK_SIZE, z - point.getZ()*CHUNK_SIZE);
+        }
+        return null;
     }
 
     public void addVoxel(int x, int y, int z, VoxelType voxel) {
@@ -112,33 +133,8 @@ public class ChunkManager {
         setNeedsMeshUpdate(chunkPoint);
     }
 
-    private Chunk createNewChunk(Point3d point3d) {
-        return createNewChunk(point3d.getX(), point3d.getY(), point3d.getZ());
-    }
-
-    private Chunk createNewChunk(int x, int y, int z) {
-        Chunk chunk = new Chunk(x, y, z);
-        Logger.log(Logger.LogLevel.DEBUG, "Adding new chunk " + new Point3d(x,y,z).toString());
-        chunk.setup(glCapabilities);
-        return chunk;
-    }
-
-
-    public Voxel getVoxel(int x, int y, int z) {
-        Point3d point = new Point3d(getChunkPos(x), getChunkPos(y), getChunkPos(z));
-        if (chunkMap.containsKey(point)) {
-            return chunkMap.get(point).getVoxel(x - point.getX()*CHUNK_SIZE, y - point.getY()*CHUNK_SIZE, z - point.getZ()*CHUNK_SIZE);
-        }
-        return null;
-    }
-
     private int getChunkPos(int pos) {
         return (int) Math.floor(pos/(double) CHUNK_SIZE);
-    }
-
-    public void addChunk(int x, int y, int z, Chunk chunk) {
-        addChunk(new Point3d(x, y, z), chunk);
-        chunk.setup(GL.getCapabilities());
     }
 
     private boolean outOfBounds(int value) {

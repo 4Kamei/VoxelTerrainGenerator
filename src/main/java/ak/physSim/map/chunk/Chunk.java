@@ -58,25 +58,6 @@ public class Chunk extends Renderable {
         voxels[x][y][z] = new Voxel(voxel);
     }
 
-    public boolean checkCollision(Vector3f position, Vector3f lower, Vector3f higher) {
-        Vector3f[] vert = mesh.getVertices();
-        if (vert == null)
-            return true;
-
-        Vector3f low = new Vector3f(lower).add(position).sub(this.position.x, this.position.y, this.position.z);
-        Vector3f high = new Vector3f(higher).add(position).sub(this.position.x, this.position.y, this.position.z);
-
-        for (Vector3f vector3f : vert) {
-            if (vector3f.x < low.x || vector3f.y < low.y || vector3f.z < low.z)
-                continue;
-            if (vector3f.x > high.x || vector3f.y > high.y || vector3f.z > high.z)
-                continue;
-            Logger.log(Logger.LogLevel.DEBUG, "Collision true for " + vector3f);
-            return true;
-        }
-        return false;
-    }
-
     public void render() {
         GL30.glBindVertexArray(mesh.getVaoId());
         glEnableVertexAttribArray(0);

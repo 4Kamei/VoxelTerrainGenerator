@@ -51,15 +51,13 @@ public class WorldManager {
     private void generatePlane(int size, int offsetX, int offsetY, int offsetZ, int xSize, int ySize, int zSize, VoxelType type) {
         for (int x = -size; x < size; x++) {
             for (int z = -size; z < size; z++) {
-                Chunk c = new Chunk(x + offsetX, offsetY, z + offsetZ);
                 for (int cX = 0; cX < xSize; cX++) {
                     for (int cZ = 0; cZ < ySize; cZ++) {
                         for (int cY = 0; cY < zSize; cY++) {
-                            c.setVoxel(cX, cY, cZ, type);
+                            manager.addVoxel(cX + x * 16, cY, cZ + z*16, type);
                         }
                     }
                 }
-                manager.addChunk(x + offsetX, offsetY, z + offsetZ, c);
             }
         }
     }
@@ -109,7 +107,7 @@ public class WorldManager {
                 }
             }
         }
-        player.setPosition(0, (int) (generator.getElevation(0, 0)*60 + 1), 0);
+        player.setPosition(0, (int) (generator.getElevation(0, 0) * 60 + 1), 0);
     }
 
     private void generateBlobs(){
@@ -117,23 +115,21 @@ public class WorldManager {
         for (int x = -rad; x < rad; x++) {
             for (int y = 0; y < 5; y++) {
                 for (int z = -rad; z < rad; z++) {
-                    manager.addChunk(new Point3d(x, y, z), generateBlobChunk(x, y, z));
+                    generateBlobChunk(x, y, z);
                 }
             }
         }
     }
 
-    private Chunk generateBlobChunk(int x, int y, int z) {
-        Chunk c = new Chunk(x, y, z);
+    private void generateBlobChunk(int x, int y, int z) {
         for (int vX = 0; vX < CHUNK_SIZE; vX++) {
             for (int vY = 0; vY < CHUNK_SIZE; vY++) {
                 for (int vZ = 0; vZ < CHUNK_SIZE; vZ++) {
                     if ((Noise.gradientCoherentNoise3D((CHUNK_SIZE * x + vX)/ (float) CHUNK_SIZE, (CHUNK_SIZE * y + vY)/ (float) CHUNK_SIZE, (CHUNK_SIZE * z + vZ)/ (float) CHUNK_SIZE, 43, NoiseQuality.BEST) + 1)/2 > 0.8)
-                        c.setVoxel(vX, vY, vZ, VoxelType.STONE);
+                        manager.addVoxel(vX+ x*16, vY+ y*16, vZ+ z*16, VoxelType.STONE);
                 }
             }
         }
-        return c;
     }
 
     public void addVoxel(int x, int y, int z, VoxelType voxel){
@@ -156,16 +152,14 @@ public class WorldManager {
         int x = (int) x1;
         int y = (int) y1;
         int z = (int) z1;
-        Chunk c = new Chunk(x, y, z);
         for (int vX = 0; vX < 16; vX++) {
             for (int vY = 0; vY < 16; vY++) {
                 for (int vZ = 0; vZ < 16; vZ++) {
                     if ((Noise.gradientCoherentNoise3D((16 * x + vX)/16f, (16 * y + vY)/16f, (16 * z + vZ)/16f, 43, NoiseQuality.BEST) + 1)/2 > 0.8)
-                        c.setVoxel(vX, vY, vZ, VoxelType.STONE);
+                        manager.addVoxel(vX+ x * 16, vY+ y * 16, vZ + z * 16, VoxelType.STONE);
                 }
             }
         }
-        manager.addChunk(x, y, z, c);
     }
 
     public void updatePosition() {

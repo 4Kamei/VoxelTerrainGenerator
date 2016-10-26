@@ -1,6 +1,5 @@
 package ak.physSim.main;
 
-import ak.physSim.entity.CollisionChecker;
 import ak.physSim.entity.Player;
 import ak.physSim.input.Console;
 import ak.physSim.input.GameAction;
@@ -22,12 +21,9 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GLUtil;
 
-import java.util.Iterator;
-
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.system.MemoryUtil.NULL;
-
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Main {
 
@@ -69,7 +65,6 @@ public class Main {
     //DEBUG VARIABLE for light drawing
     private boolean drawLight = false;
 
-    private CollisionChecker checker;
     private ChunkManager chunkManager;
 
     public void run() {
@@ -167,8 +162,6 @@ public class Main {
         player = new Player(new Vector3f(-416, 251, -100), (float) (0.57 * Math.PI), (float) (0.66 * Math.PI));
         chunkManager = new ChunkManager(GL.getCapabilities());
         map = new WorldManager(player, chunkManager);
-        checker = new CollisionChecker();
-
         renderer = new Renderer(projectionShader, depthShaderProgram , projectionMatrix, chunkManager);
         renderer.setResolution(WIDTH, HEIGHT);
     }
@@ -239,7 +232,7 @@ public class Main {
                 //map.generateChunk(player.getPosition().x / Reference.CHUNK_SIZE, player.getPosition().y / Reference.CHUNK_SIZE, player.getPosition().z / Reference.CHUNK_SIZE);
 
                 if (button == 0)
-                    map.addVoxel((int) player.getPosition().x, (int) player.getPosition().y, (int) player.getPosition().z, VoxelType.GRASS);
+                    map.addVoxel((int) (player.getPosition().x - 0.5), (int) (player.getPosition().y - 2.5), (int) (player.getPosition().z - 0.5), VoxelType.GRASS);
                 //renderer.setLight(new Light(10, player.getPosition(), player.getPitch(), player.getAzimuth()));
                 //if (button == 2) {
 /*                  areaLight = new AreaLight(player.getPosition());
@@ -282,14 +275,7 @@ public class Main {
 
         float delta = 1/ups;
 
-        checker.clearMeshes();
-
-        Chunk[] chunks = map.getObjectsToRender(Reference.CHUNK_SIZE).toArray(new Chunk[0]);
-        for (Chunk chunk : chunks) {
-            checker.addMesh(chunk);
-        }
-
-        player.update(delta, checker);
+        player.update(delta);
     }
 
     public static void main(String[] args) {

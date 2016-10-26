@@ -25,9 +25,9 @@ public class Player extends Camera {
     public Player(Vector3f playerPosition, float azimuth, float pitch) {
         super(playerPosition, pitch, azimuth);
         caluclateLookVector();
-        //Generate bounding box (centered around player, offset up by 0.5 on y)
-        lower = new Vector3f(-0.5f, 0, -0.5f);
-        higher = new Vector3f(0.5f, 1, 0.5f);
+        //Generate bounding box (centered around player, offset up by -1.5 on y)
+        lower = new Vector3f(-0.5f, -2, -0.5f);
+        higher = new Vector3f(0.5f, 0, 0.5f);
     }
 
     public void setKeysMovement(GameAction action, boolean statePressed) {
@@ -53,7 +53,7 @@ public class Player extends Camera {
         }
     }
 
-    public void update(float delta, CollisionChecker checker) {
+    public void update(float delta) {
         if (fly) {
             dy = 0;
             float update = delta * speed;
@@ -63,9 +63,12 @@ public class Player extends Camera {
             if (down) {
                 position = position.sub(lookVector.x * update, lookVector.y * update, lookVector.z * update);
             }
-            if (right)
-                if (checker.checkCollision(position, lower, higher))
-                    Logger.log(Logger.LogLevel.ALL, "Collision");
+            if (right) {
+                //Vector3f collision = checker.checkCollision(position, lower, higher);
+                //if(collision != null) {
+                //    Logger.log(Logger.LogLevel.ALL, "Collision at" + collision);
+                //}
+            }
             if (left) {
                 Logger.log(Logger.LogLevel.DEBUG, String.format("POS: %.3f, %.3f, %.3f", position.x, position.y, position.z));
                 Logger.log(Logger.LogLevel.DEBUG, String.format("NORM POS %.3f, %.3f, %.3f", position.x / position.length(), position.y / position.length(), position.z / position.length()));
@@ -73,12 +76,13 @@ public class Player extends Camera {
                 Logger.log(Logger.LogLevel.DEBUG, String.format("Azimuth: %.2f \n Pitch: %.2f", azimuth / Math.PI, pitch / Math.PI));
             }
         } else {
-            dy -= 9.81f * delta;
-            position.add(0, dy * delta, 0);
-            if (checker.checkCollision(position, lower, higher)) {
-                position.sub(0, dy * delta, 0);
-                dy = 0;
-            }
+            //dy -= 9.81f * delta;
+            //position.add(0, dy * delta, 0);
+            //Vector3f collision = checker.checkCollision(position, lower, higher);
+            //if(collision != null) {
+            //    position.y = collision.y;
+            //    dy = 0;
+            //}
         }
     }
 
