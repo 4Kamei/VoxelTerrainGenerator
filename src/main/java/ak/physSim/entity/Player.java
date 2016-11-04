@@ -1,6 +1,7 @@
 package ak.physSim.entity;
 
 import ak.physSim.input.GameAction;
+import ak.physSim.map.WorldManager;
 import ak.physSim.util.Logger;
 import org.joml.Vector3f;
 
@@ -53,7 +54,7 @@ public class Player extends Camera {
         }
     }
 
-    public void update(float delta) {
+    public void update(float delta, WorldManager map) {
         if (fly) {
             dy = 0;
             float update = delta * speed;
@@ -64,7 +65,7 @@ public class Player extends Camera {
                 position = position.sub(lookVector.x * update, lookVector.y * update, lookVector.z * update);
             }
             if (right) {
-                //Vector3f collision = checker.checkCollision(position, lower, higher);
+                //Vector3f collision = checker.checkVoxelCollision(position, lower, higher);
                 //if(collision != null) {
                 //    Logger.log(Logger.LogLevel.ALL, "Collision at" + collision);
                 //}
@@ -76,13 +77,13 @@ public class Player extends Camera {
                 Logger.log(Logger.LogLevel.DEBUG, String.format("Azimuth: %.2f \n Pitch: %.2f", azimuth / Math.PI, pitch / Math.PI));
             }
         } else {
-            //dy -= 9.81f * delta;
-            //position.add(0, dy * delta, 0);
-            //Vector3f collision = checker.checkCollision(position, lower, higher);
-            //if(collision != null) {
-            //    position.y = collision.y;
-            //    dy = 0;
-            //}
+            Collision collision = map.checkVoxelCollision(position, lower, higher);
+            if(collision != null) {
+                dy = 0;
+            } else {
+                dy -= 9.81f * delta;
+                position.add(0, dy * delta, 0);
+            }
         }
     }
 

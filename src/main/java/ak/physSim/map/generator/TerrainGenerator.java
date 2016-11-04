@@ -33,16 +33,21 @@ public class TerrainGenerator {
         height *= scale;
         nSeed2 = nSeed1 - 1;
         nSeed4 = nSeed1 - 2;
+        Logger.log(Logger.LogLevel.ALL, "Generating Radial");
         radialMap = generateRadialMap(width, height);
         SimplexNoise.seed(nSeed1);
+        Logger.log(Logger.LogLevel.ALL, "Generating Octave 0");
         noise1 = generateNoiseMap(width, height, 1);
         SimplexNoise.seed(nSeed2);
+        Logger.log(Logger.LogLevel.ALL, "Generating Octave 1");
         noise2 = generateNoiseMap(width, height, 2);
         SimplexNoise.seed(nSeed4);
+        Logger.log(Logger.LogLevel.ALL, "Generating Octave 2");
         noise4 = generateNoiseMap(width, height, 4);
 
+        Logger.log(Logger.LogLevel.ALL, "Blending Maps");
         elevationMap = blendMaps(width, height, cutOff, radialMap, noise1, noise2, noise4);
-
+        noise1 = noise2 = noise4 = radialMap = null;
         Logger.log(Logger.LogLevel.ALL, "Finished generating map. Time taken = " + (System.currentTimeMillis() - time) + "ms");
 
         //TODO: Calculate moisture and heat maps
@@ -69,7 +74,7 @@ public class TerrainGenerator {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 finalMap[x][y] /= (float) Math.pow(maps.length + 1, 2);
-                finalMap[x][y] *= radialMap[y][x];
+                finalMap[x][y] *= radial[y][x];
                 if (finalMap[x][y] < cutOff)
                     finalMap[x][y] = cutOff;
                 if (finalMap[x][y] < min)

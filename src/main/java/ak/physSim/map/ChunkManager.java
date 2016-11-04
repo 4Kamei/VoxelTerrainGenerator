@@ -68,7 +68,7 @@ public class ChunkManager {
     }
 
     public void computeMeshUpdates() {
-        for (int i = 0; i < 1 && needsMeshUpdate.peek() != null; i++) {
+        for (int i = 0; i < 2 && !needsMeshUpdate.isEmpty(); i++) {
             Point3d p = needsMeshUpdate.poll();
             Chunk chunk = chunkMap.get(p);
             ChunkMesher mesher = new ChunkMesher(chunk, this);

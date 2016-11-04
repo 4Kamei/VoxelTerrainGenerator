@@ -31,11 +31,11 @@ public class Main {
     private long window;
 
     //Size of window
-    private int HEIGHT = 600,
-                WIDTH  = 800;
+    private int WIDTH  = 1280,
+                HEIGHT = 720;
 
     //Projection Matrix parameters
-    private static final float fov  = (float) (Math.PI/4); //60 degrees
+    private static final float fov  = (float) (Math.PI/2); //90 degrees
     private static final float zNear = 0.01f;
     private static final float zFar  = 1000f;
     private float aspectRatio = (float) WIDTH/HEIGHT;
@@ -118,7 +118,6 @@ public class Main {
         glfwSwapInterval(1);
 
         // Make the window visible
-        glfwShowWindow(window);
     }
 
     private void initGL() throws Exception {
@@ -155,6 +154,8 @@ public class Main {
 
         projectionMatrix = new Matrix4f().perspective(fov, aspectRatio, zNear, zFar);
 
+        //Show window after init
+        glfwShowWindow(window);
     }
 
     private void initObjects() throws Exception {
@@ -164,6 +165,7 @@ public class Main {
         map = new WorldManager(player, chunkManager);
         renderer = new Renderer(projectionShader, depthShaderProgram , projectionMatrix, chunkManager);
         renderer.setResolution(WIDTH, HEIGHT);
+
     }
 
     private void loop() throws Exception {
@@ -275,7 +277,7 @@ public class Main {
 
         float delta = 1/ups;
 
-        player.update(delta);
+        map.update(delta);
     }
 
     public static void main(String[] args) {

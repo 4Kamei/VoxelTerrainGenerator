@@ -1,5 +1,6 @@
 package ak.physSim.map;
 
+import ak.physSim.entity.Collision;
 import ak.physSim.entity.Player;
 import ak.physSim.map.chunk.Chunk;
 import ak.physSim.map.generator.TerrainGenerator;
@@ -23,10 +24,24 @@ public class WorldManager {
     private ChunkManager manager;
     private Player player;
     private TerrainGenerator generator;
+    private Collision collision = new Collision();
+    private boolean[] voxelTest = new boolean[]{
+            false, false, false,
+            true,  false, false,
+            true,  false, true,
+            false, false, true,
+            false, true,  false,
+            true,  true,  false,
+            true,  true,  true,
+            false, true,  true,
+    };
+    /*
+        Terrain generation
+     */
+
     public WorldManager(Player player, ChunkManager manager) {
         this.player = player;
         this.manager = manager;
-
 
         //generateLandscape(80, 80);
         //generateBlobs();
@@ -39,9 +54,9 @@ public class WorldManager {
         //generatePlane(10, 0, 0, 0);
         //generateLandscape(100, 100);
 
-        int size = 500;
-        generator = new TerrainGenerator(45646456l, size, size, 5);
-        generateLandscape(size/2, size/2);
+        int size = 1000;
+        generator = new TerrainGenerator(45634456l, size, size, 5);
+        generateLandscape(size, size);
     }
 
     private void generatePlane(int size, int offsetX, int offsetY, int offsetZ, VoxelType type) {
@@ -132,22 +147,6 @@ public class WorldManager {
         }
     }
 
-    public void addVoxel(int x, int y, int z, VoxelType voxel){
-        manager.addVoxel(x, y, z, voxel);
-    }
-
-    public ArrayList<Chunk> getObjectsToRender(float distance) {
-        return manager.getChunks(distance);
-    }
-
-    public void cleanup() {
-        manager.cleanup();
-    }
-
-    public void addVoxel(Vector3f position, VoxelType voxel) {
-        addVoxel((int) position.x, (int) position.y, (int) position.z, voxel);
-    }
-
     public void generateChunk(float x1, float y1, float z1) {
         int x = (int) x1;
         int y = (int) y1;
@@ -162,7 +161,60 @@ public class WorldManager {
         }
     }
 
-    public void updatePosition() {
+    /*
+        Methods for terrain
+     */
 
+    public void addVoxel(int x, int y, int z, VoxelType voxel){
+        manager.addVoxel(x, y, z, voxel);
+    }
+
+    public void addVoxel(Vector3f position, VoxelType voxel) {
+        addVoxel((int) position.x, (int) position.y, (int) position.z, voxel);
+    }
+
+    public Collision checkVoxelCollision(Vector3f position, Vector3f lower, Vector3f higher) {
+        int lowerX =  (int) Math.floor(position.x + lower.x);
+        int lowerY =  (int) Math.floor(position.y + lower.y);
+        int lowerZ =  (int) Math.floor(position.z + lower.z);
+        int higherX = (int) Math.floor(position.x + higher.x);
+        int higherY = (int) Math.floor(position.y + higher.y);
+        int higherZ = (int) Math.floor(position.z + higher.z);
+        //LowerX,   HigherY, HigherZ;
+        //HigherX,  HigherY, HigherZ;
+        //LowerX,   LowerY,  HigherZ;
+        //HigherX,  LowerY,  HigherZ;
+        //LowerX,   HigherY, LowerZ;
+        //HigherX,  HigherY, LowerZ;
+        //LowerX,   LowerY,  LowerZ;
+        //HigherX,  LowerY,  LowerZ;
+        Voxel testing;
+
+        for (int i = 0; i < voxelTest.length;) {
+            //loop through the 8 vertices of a box
+            int posX = voxelTest[i++] ? lowerX : higherX;
+            int posY = voxelTest[i++] ? lowerY : higherY;
+            int posZ = voxelTest[i++] ? lowerZ : higherZ;
+            testing = manager.getVoxel(posX, posY, posZ);
+            if (testing != null)
+//                return new Vector3f(posX, posY, posZ);
+                return null;
+        }
+        return null;
+    }
+
+    public void update(float delta) {
+        player.update(delta, this);
+    }
+
+    /*
+        Cleanup and others
+     */
+    public ArrayList<Chunk> getObjectsToRender(float distance) {
+        return manager.getChunks(distance);
+    }
+
+    public void cleanup() {
+        manager.cleanup();
     }
 }
